@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetTransactionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +17,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('categories', CategoryController::class)
             ->only(['index', 'store', 'show', 'update', 'destroy']);
     });
+    Route::resource('assets', AssetController::class)
+        ->only(['index', 'store', 'show', 'update', 'destroy']);
+    Route::resource('transactions', AssetTransactionController::class)
+        ->only(['index', 'store', 'show', 'update', 'destroy']);
 });
 
 Route::fallback(function () {

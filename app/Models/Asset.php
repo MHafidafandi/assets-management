@@ -2,18 +2,31 @@
 
 namespace App\Models;
 
+use Database\Factories\AssetFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use OwenIt\Auditing\Contracts\Auditable;
 
-#[Fillable(['name', 'category_id', 'purchase_date', 'spesification', 'is_active'])]
+#[Fillable(['name', 'category_id', 'purchase_date', 'specification', 'is_active', 'uuid'])]
 class Asset extends Model implements Auditable
 {
-    /** @use HasFactory<\Database\Factories\AssetFactory> */
-    use HasFactory, \OwenIt\Auditing\Auditable;
+    /** @use HasFactory<AssetFactory> */
+    use HasFactory, \OwenIt\Auditing\Auditable, SoftDeletes;
 
-    function casts(): array
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
+
+    public function casts(): array
     {
         return [
             'specification' => 'array',
@@ -31,8 +44,8 @@ class Asset extends Model implements Auditable
         return $this->hasMany(AssetTransaction::class);
     }
 
-    public function Attachments()
+    public function attachment()
     {
-        return $this->hasMany(AssetAttachment::class);
+        return $this->hasOne(AssetAttachment::class)->latestOfMany();
     }
 }

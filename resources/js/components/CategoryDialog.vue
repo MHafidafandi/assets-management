@@ -20,6 +20,10 @@ const props = defineProps<{
     Description?: string;
 }>();
 
+const emit = defineEmits<{
+    close: [];
+}>();
+
 const isEdit = computed(() => !!props.category);
 
 // Wayfinder: store.form() -> { action: '/users', method: 'post' }
@@ -27,6 +31,10 @@ const isEdit = computed(() => !!props.category);
 const formTarget = computed(() =>
     isEdit.value ? update.form(props.category!.id) : store.form(),
 );
+
+function onSuccess() {
+    emit('close');
+}
 </script>
 
 <template>
@@ -40,7 +48,7 @@ const formTarget = computed(() =>
             </DialogDescription>
         </DialogHeader>
 
-        <Form v-bind="formTarget" v-slot="{ errors, processing }" class="">
+        <Form v-bind="formTarget" v-slot="{ errors, processing }" class="" @success="onSuccess">
             <div class="grid gap-2">
                 <div class="grid gap-3">
                     <Label for="name">Name</Label>

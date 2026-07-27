@@ -22,14 +22,27 @@ class CategoryController extends Controller
             ->when(request()->filled('is_active'), function ($query) {
                 $isActive = request('is_active');
                 $isActiveBool = filter_var($isActive, FILTER_VALIDATE_BOOLEAN);
+
                 return $query->where('is_active', $isActiveBool);
             })
+            ->when(
+                request('sort'),
+                function ($q, $sort) {
+                    $column = ltrim($sort, '-');
+                    if (in_array($column, ['name', 'is_active', 'created_at'])) {
+                        $q->orderBy($column, str_starts_with($sort, '-') ? 'desc' : 'asc');
+                    } else {
+                        $q->orderBy('created_at', 'desc');
+                    }
+                },
+                fn($q) => $q->orderBy('created_at', 'desc')
+            )
             ->paginate(10)
             ->withQueryString();
 
         return Inertia::render('categories/Index', [
             'categories' => $categories,
-            'filters' => request()->only(['search', 'is_active']),
+            'filters' => request()->only(['search', 'is_active', 'sort']),
         ]);
     }
 
@@ -55,7 +68,6 @@ class CategoryController extends Controller
     {
         //
     }
-
 
     /**
      * Update the specified resource in storage.

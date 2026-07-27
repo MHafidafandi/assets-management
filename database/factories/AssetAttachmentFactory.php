@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Asset;
 use App\Models\AssetAttachment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +19,11 @@ class AssetAttachmentFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'asset_id' => Asset::factory(),
+            'file_name' => $this->faker->word().'.pdf',
+            'file_path' => 'attachments/'.$this->faker->uuid().'.pdf',
+            'file_size' => $this->faker->numberBetween(100, 500), // KB
+            'mime_type' => 'application/pdf',
         ];
     }
 }

@@ -7,6 +7,9 @@ import {
     Search,
     Trash2,
     UserPlus,
+    ArrowUpDown,
+    ArrowUp,
+    ArrowDown,
 } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import { index as usersIndex } from '@/actions/App/Http/Controllers/UserController';
@@ -31,9 +34,13 @@ const props = defineProps<{
     };
 }>();
 
+const createDialogOpen = ref(false);
+const editDialogOpenMap = ref<Record<number, boolean>>({});
+
 const search = ref(props.filters.search ?? '');
 const activeFilter = ref<string>(props.filters.is_active ?? '');
 const roleFilter = ref<string>(props.filters.role ?? '');
+const sortFilter = ref<string>(props.filters.sort ?? '');
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -52,11 +59,32 @@ function applyFilters() {
         query.role = roleFilter.value;
     }
 
+    if (sortFilter.value) {
+        query.sort = sortFilter.value;
+    }
+
     router.get(usersIndex.url(), query, {
         preserveState: true,
         preserveScroll: true,
         replace: true,
     });
+}
+
+function toggleSort(field: string) {
+    if (sortFilter.value === field) {
+        sortFilter.value = `-${field}`;
+    } else if (sortFilter.value === `-${field}`) {
+        sortFilter.value = '';
+    } else {
+        sortFilter.value = field;
+    }
+    applyFilters();
+}
+
+function getSortIcon(field: string) {
+    if (sortFilter.value === field) return ArrowUp;
+    if (sortFilter.value === `-${field}`) return ArrowDown;
+    return ArrowUpDown;
 }
 
 watch(search, () => {
@@ -120,6 +148,10 @@ function goToPage(page: number) {
         query.role = roleFilter.value;
     }
 
+    if (sortFilter.value) {
+        query.sort = sortFilter.value;
+    }
+
     router.get(usersIndex.url(), query, {
         preserveState: true,
         preserveScroll: true,
@@ -143,7 +175,7 @@ function goToPage(page: number) {
                     Manage enterprise identities, roles, and access controls.
                 </p>
             </div>
-            <Dialog>
+            <Dialog v-model:open="createDialogOpen">
                 <DialogTrigger>
                     <Button
                         class="flex items-center gap-sm rounded-md px-lg py-sm text-label-md text-on-primary transition-all duration-200 active:scale-95"
@@ -155,6 +187,7 @@ function goToPage(page: number) {
                 <UserDialog
                     label="Create User"
                     Description="Fill in the details to create a new user account."
+                    @close="createDialogOpen = false"
                 />
             </Dialog>
         </div>
@@ -247,9 +280,16 @@ function goToPage(page: number) {
                             class="border-b border-outline-variant bg-surface-container-low"
                         >
                             <th
-                                class="px-lg py-md text-left text-label-md tracking-wider text-on-surface-variant uppercase"
+                                class="cursor-pointer px-lg py-md text-left text-label-md tracking-wider text-on-surface-variant uppercase transition-colors hover:bg-surface-container-high"
+                                @click="toggleSort('name')"
                             >
-                                Name
+                                <div class="flex items-center gap-1">
+                                    Name
+                                    <component
+                                        :is="getSortIcon('name')"
+                                        class="size-4"
+                                    />
+                                </div>
                             </th>
                             <th
                                 class="px-lg py-md text-left text-label-md tracking-wider text-on-surface-variant uppercase"
@@ -334,7 +374,7 @@ function goToPage(page: number) {
                             <!-- Actions -->
                             <td class="px-lg py-md text-right">
                                 <div class="flex justify-end gap-xs">
-                                    <Dialog>
+                                    <Dialog v-model:open="editDialogOpenMap[user.id]">
                                         <DialogTrigger>
                                             <div
                                                 class="rounded p-xs text-on-surface-variant transition-colors hover:bg-surface-container-high"
@@ -347,6 +387,7 @@ function goToPage(page: number) {
                                             :User="user"
                                             label="Edit User"
                                             Description="Update the details of this user account."
+                                            @close="editDialogOpenMap[user.id] = false"
                                         />
                                     </Dialog>
                                     <AlertDialog>

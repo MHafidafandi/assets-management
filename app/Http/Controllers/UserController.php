@@ -22,26 +22,33 @@ class UserController extends Controller
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->when(request('role'), fn($q, $role) => $q->where('role', $role))
+            ->when(request('role'), fn ($q, $role) => $q->where('role', $role))
             ->when(request()->filled('is_active'), function ($q) {
                 $isActive = request('is_active');
                 $isActiveBool = filter_var($isActive, FILTER_VALIDATE_BOOLEAN);
+
                 return $q->where('is_active', $isActiveBool);
             })
             ->when(
                 request('sort'),
-                fn($q, $sort) => $q->orderBy(ltrim($sort, '-'), str_starts_with($sort, '-') ? 'desc' : 'asc'),
-                fn($q) => $q->orderBy('created_at', 'desc')
+                function ($q, $sort) {
+                    $column = ltrim($sort, '-');
+                    if (in_array($column, ['name', 'email', 'role', 'is_active', 'created_at'])) {
+                        $q->orderBy($column, str_starts_with($sort, '-') ? 'desc' : 'asc');
+                    } else {
+                        $q->orderBy('created_at', 'desc');
+                    }
+                },
+                fn ($q) => $q->orderBy('created_at', 'desc')
             )
             ->paginate(10)
             ->withQueryString();
 
         return Inertia::render('users/Index', [
-            'users'   => $users,
+            'users' => $users,
             'filters' => request()->only(['search', 'role', 'is_active', 'sort']),
         ]);
     }
-
 
     public function store(StoreUserRequest $request): RedirectResponse
     {
@@ -49,10 +56,9 @@ class UserController extends Controller
             ...$request->validated(),
             'password' => Hash::make($request->password),
         ]);
+
         return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
     }
-
-
 
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {

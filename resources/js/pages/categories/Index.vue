@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { Edit, Plus, Search, Trash2 } from '@lucide/vue';
+import { ChevronLeft, ChevronRight, Edit, Plus, Search, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import CategoryDeleteDialog from '@/components/CategoryDeleteDialog.vue';
@@ -19,24 +19,24 @@ const props = defineProps<{
     filters: {
         search: string;
         is_active: string;
+        sort: string;
     };
 }>();
-console.log(props.categories);
+
+const createDialogOpen = ref(false);
+const editDialogOpenMap = ref<Record<number, boolean>>({});
 const search = ref(props.filters.search ?? '');
 const activeFilter = ref<string>(props.filters.is_active ?? '');
+const sortFilter = ref<string>(props.filters.sort ?? '');
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const applyFilters = () => {
     const query: Record<string, string> = {};
 
-    if (search.value !== '') {
-        query.search = search.value;
-    }
-
-    if (activeFilter.value !== '') {
-        query.is_active = activeFilter.value;
-    }
+    if (search.value !== '') query.search = search.value;
+    if (activeFilter.value !== '') query.is_active = activeFilter.value;
+    if (sortFilter.value !== '') query.sort = sortFilter.value;
 
     router.get(CategoryController.index().url, query, {
         preserveState: true,
@@ -46,18 +46,29 @@ const applyFilters = () => {
 };
 
 watch(search, () => {
-    if (searchTimeout) {
-        clearTimeout(searchTimeout);
-    }
-
-    searchTimeout = setTimeout(() => {
-        applyFilters();
-    }, 300);
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => applyFilters(), 300);
 });
 
-watch(activeFilter, () => {
+watch([activeFilter, sortFilter], () => {
     applyFilters();
 });
+
+const toggleSort = (field: string) => {
+    if (sortFilter.value === field) {
+        sortFilter.value = `-${field}`;
+    } else if (sortFilter.value === `-${field}`) {
+        sortFilter.value = '';
+    } else {
+        sortFilter.value = field;
+    }
+};
+
+const getSortIcon = (field: string) => {
+    if (sortFilter.value === field) return ArrowUp;
+    if (sortFilter.value === `-${field}`) return ArrowDown;
+    return ArrowUpDown;
+};
 
 const paginationPages = computed(() => {
     const current = props.categories.current_page;
@@ -95,14 +106,9 @@ const paginationPages = computed(() => {
 
 function goToPage(page: number) {
     const query: Record<string, string> = { page: String(page) };
-
-    if (search.value) {
-        query.search = search.value;
-    }
-
-    if (activeFilter.value !== '') {
-        query.is_active = activeFilter.value;
-    }
+    if (search.value) query.search = search.value;
+    if (activeFilter.value !== '') query.is_active = activeFilter.value;
+    if (sortFilter.value !== '') query.sort = sortFilter.value;
 
     router.get(CategoryController.index().url, query, {
         preserveState: true,
@@ -127,7 +133,7 @@ function goToPage(page: number) {
                     Manage product categories and their properties.
                 </p>
             </div>
-            <Dialog>
+            <Dialog v-model:open="createDialogOpen">
                 <DialogTrigger>
                     <Button
                         class="flex items-center gap-sm rounded-md px-lg py-sm text-label-md text-on-primary transition-all duration-200 active:scale-95"
@@ -139,6 +145,7 @@ function goToPage(page: number) {
                 <CategoryDialog
                     label="Create Category"
                     Description="Fill in the details to create a new category."
+                    @close="createDialogOpen = false"
                 />
             </Dialog>
         </div>
@@ -215,9 +222,16 @@ function goToPage(page: number) {
                             class="border-b border-outline-variant bg-surface-container-low"
                         >
                             <th
-                                class="px-lg py-md text-left text-label-md tracking-wider text-on-surface-variant uppercase"
+                                class="cursor-pointer px-lg py-md text-left text-label-md tracking-wider text-on-surface-variant uppercase transition-colors hover:bg-surface-container-high"
+                                @click="toggleSort('name')"
                             >
-                                Name
+                                <div class="flex items-center gap-1">
+                                    Name
+                                    <component
+                                        :is="getSortIcon('name')"
+                                        class="size-4"
+                                    />
+                                </div>
                             </th>
                             <th
                                 class="px-lg py-md text-left text-label-md tracking-wider text-on-surface-variant uppercase"
@@ -285,7 +299,7 @@ function goToPage(page: number) {
                             <!-- Actions -->
                             <td class="px-lg py-md text-right">
                                 <div class="flex justify-end gap-xs">
-                                    <Dialog>
+                                    <Dialog v-model:open="editDialogOpenMap[category.id]">
                                         <DialogTrigger>
                                             <div
                                                 class="rounded p-xs text-on-surface-variant transition-colors hover:bg-surface-container-high"
@@ -298,6 +312,7 @@ function goToPage(page: number) {
                                             :category="category"
                                             label="Edit Category"
                                             Description="Update the details of this category."
+                                            @close="editDialogOpenMap[category.id] = false"
                                         />
                                     </Dialog>
                                     <AlertDialog>

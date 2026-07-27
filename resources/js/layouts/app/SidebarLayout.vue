@@ -4,6 +4,9 @@ import AppHeader from '@/components/AppHeader.vue';
 import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import { Toaster } from '@/components/ui/sonner';
+import { useFlashToast } from '@/composables/useFlashToast';
+
+useFlashToast();
 </script>
 
 <template>

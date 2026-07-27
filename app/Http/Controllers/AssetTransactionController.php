@@ -63,6 +63,7 @@ class AssetTransactionController extends Controller
             'exportJob' => $exportJob,
             'importJob' => $importJob,
             'filters' => request()->only(['search', 'is_returned', 'sort']),
+            'audits' => Inertia::optional(fn () => $this->getAudits()),
         ]);
     }
 

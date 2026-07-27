@@ -165,14 +165,14 @@ function goToPage(page: number) {
     <Head title="Transactions" />
     <div class="flex w-full flex-col gap-lg p-xl">
         <!-- Page Header -->
-        <div class="flex items-end justify-between">
+        <div class="flex flex-wrap items-end justify-between">
             <div>
                 <h2 class="text-headline-lg text-on-surface">Transactions</h2>
                 <p class="text-body-md text-on-surface-variant">
                     Manage asset borrowing and returns.
                 </p>
             </div>
-            <div class="flex flex-row items-center gap-md">
+            <div class="flex flex-wrap items-center gap-md">
                 <Dialog v-model:open="createDialogOpen">
                     <DialogTrigger>
                         <Button

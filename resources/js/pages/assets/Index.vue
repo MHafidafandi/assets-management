@@ -175,7 +175,7 @@ function goToPage(page: number) {
     <Head title="Assets" />
     <div class="flex w-full flex-col gap-lg p-xl">
         <!-- Page Header -->
-        <div class="flex items-start justify-between">
+        <div class="flex flex-wrap items-start justify-between">
             <div>
                 <h2 class="text-headline-lg text-on-surface">
                     Asset Management
@@ -184,7 +184,7 @@ function goToPage(page: number) {
                     Manage all company assets.
                 </p>
             </div>
-            <div class="flex flex-row items-center gap-md">
+            <div class="flex flex-wrap items-center gap-md">
                 <Dialog v-model:open="createDialogOpen">
                     <DialogTrigger as-child>
                         <Button

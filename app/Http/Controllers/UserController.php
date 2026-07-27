@@ -66,6 +66,7 @@ class UserController extends Controller
             'filters' => request()->only(['search', 'role_id', 'is_active', 'sort']),
             'exportJob' => $exportJob,
             'importJob' => $importJob,
+            'audits' => Inertia::optional(fn () => $this->getAudits()),
         ]);
     }
 

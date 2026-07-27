@@ -11,6 +11,7 @@ import DialogHeader from './ui/dialog/DialogHeader.vue';
 import DialogTitle from './ui/dialog/DialogTitle.vue';
 import Input from './ui/input/Input.vue';
 import Label from './ui/label/Label.vue';
+import AuditableTable from './AuditableTable.vue';
 
 const props = defineProps<{
     label?: string;
@@ -34,7 +35,9 @@ function onSuccess() {
 </script>
 
 <template>
-    <DialogContent class="fixed top-1/2 sm:max-w-106.25">
+    <DialogContent 
+        class="fixed top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 max-h-[90vh] overflow-y-auto sm:max-w-2xl"
+    >
         <DialogHeader>
             <DialogTitle>{{
                 props.label || (isEdit ? 'Edit Role' : 'Create Role')
@@ -44,7 +47,12 @@ function onSuccess() {
             </DialogDescription>
         </DialogHeader>
 
-        <Form v-bind="formTarget" v-slot="{ errors, processing }" class="" @success="onSuccess">
+        <Form 
+            v-bind="formTarget" 
+            v-slot="{ errors, processing }" 
+            class="w-full" 
+            @success="onSuccess"
+        >
             <div class="grid gap-4">
                 <div class="grid gap-2">
                     <Label for="name">Name</Label>
@@ -94,5 +102,7 @@ function onSuccess() {
                 </Button>
             </div>
         </Form>
+
+        <AuditableTable auditable-type="Role" />
     </DialogContent>
 </template>

@@ -243,9 +243,8 @@ const formatDate = (dateStr: string) => {
             </div>
         </div>
 
-        <!-- Dynamic Auditable History (Bottom Section) -->
         <div class="mt-4">
-            <AuditableTable auditable-type="Asset" :auditable-id="asset.id" />
+            <AuditableTable auditable-type="Asset" />
         </div>
     </div>
 </template>

@@ -68,11 +68,6 @@ const mainNavItems = computed<NavItem[]>(() => {
             href: '/roles',
             icon: ShieldAlert,
         },
-        {
-            title: 'Audit Logs',
-            href: '/audit-logs',
-            icon: Activity,
-        },
     );
 
     return items;

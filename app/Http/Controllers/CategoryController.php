@@ -57,6 +57,7 @@ class CategoryController extends Controller
             'filters' => request()->only(['search', 'is_active', 'sort']),
             'exportJob' => $exportJob,
             'importJob' => $importJob,
+            'audits' => Inertia::optional(fn () => $this->getAudits()),
         ]);
     }
 

@@ -61,6 +61,7 @@ class AssetController extends Controller
             'filters' => request()->only(['search', 'is_active', 'category_id', 'sort']),
             'exportJob' => $exportJob,
             'importJob' => $ImportJob,
+            'audits' => Inertia::optional(fn () => $this->getAudits()),
         ]);
     }
 
@@ -107,6 +108,7 @@ class AssetController extends Controller
 
         return Inertia::render('assets/Show', [
             'asset' => $asset,
+            'audits' => Inertia::optional(fn () => $this->getAudits()),
         ]);
     }
 

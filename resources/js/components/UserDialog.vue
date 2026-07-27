@@ -13,6 +13,7 @@ import Input from './ui/input/Input.vue';
 import Label from './ui/label/Label.vue';
 import RadioGroup from './ui/radio-group/RadioGroup.vue';
 import RadioGroupItem from './ui/radio-group/RadioGroupItem.vue';
+import AuditableTable from './AuditableTable.vue';
 
 const props = defineProps<{
     label?: string;
@@ -39,7 +40,9 @@ function onSuccess() {
 </script>
 
 <template>
-    <DialogContent class="fixed top-1/2 sm:max-w-106.25">
+    <DialogContent 
+        class="fixed top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 max-h-[90vh] overflow-y-auto sm:max-w-2xl"
+    >
         <DialogHeader>
             <DialogTitle>{{
                 props.label || (isEdit ? 'Edit User' : 'Create User')
@@ -52,7 +55,7 @@ function onSuccess() {
         <Form
             v-bind="formTarget"
             v-slot="{ errors, processing }"
-            class=""
+            class="w-full"
             @success="onSuccess"
         >
             <div class="grid gap-2">
@@ -182,5 +185,7 @@ function onSuccess() {
                 </Button>
             </div>
         </Form>
+
+        <AuditableTable auditable-type="User" />
     </DialogContent>
 </template>

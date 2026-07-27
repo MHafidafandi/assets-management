@@ -167,7 +167,7 @@ function goToPage(page: number) {
         class="flex w-full flex-col gap-lg p-xl"
     >
         <!-- Page Header -->
-        <div class="flex items-end justify-between">
+        <div class="flex flex-wrap items-end justify-between">
             <div>
                 <h2 class="text-headline-lg text-on-surface">
                     Category Management
@@ -176,7 +176,7 @@ function goToPage(page: number) {
                     Manage product categories and their properties.
                 </p>
             </div>
-            <div class="flex flex-row items-center gap-md">
+            <div class="flex flex-wrap items-center gap-md">
                 <Dialog v-model:open="createDialogOpen">
                     <DialogTrigger as-child>
                         <Button

@@ -12,7 +12,6 @@ class AuditController extends Controller
     {
         $request->validate([
             'auditable_type' => 'required|string',
-            'auditable_id' => 'required|integer',
         ]);
 
         $type = $request->input('auditable_type');
@@ -27,7 +26,6 @@ class AuditController extends Controller
         }
 
         $audits = Audit::where('auditable_type', $type)
-            ->where('auditable_id', $request->input('auditable_id'))
             ->with('user:id,name,email')
             ->orderBy('created_at', 'desc')
             ->paginate(10);

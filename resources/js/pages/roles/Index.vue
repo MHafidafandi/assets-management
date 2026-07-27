@@ -145,7 +145,7 @@ function goToPage(page: number) {
     <Head title="Roles Management" />
     <div class="flex w-full flex-col gap-lg p-xl">
         <!-- Page Header -->
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between">
             <div>
                 <h2 class="text-headline-lg font-bold text-on-surface">
                     Role Management
@@ -154,7 +154,7 @@ function goToPage(page: number) {
                     Define and manage administrative roles in the system.
                 </p>
             </div>
-            <div class="flex flex-row items-center gap-md">
+            <div class="flex flex-wrap items-center gap-md">
                 <Dialog v-model:open="createDialogOpen">
                     <DialogTrigger as-child>
                         <Button

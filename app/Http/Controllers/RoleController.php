@@ -34,6 +34,7 @@ class RoleController extends Controller
         return Inertia::render('roles/Index', [
             'roles' => $roles,
             'filters' => request()->only(['search', 'sort']),
+            'audits' => Inertia::optional(fn () => $this->getAudits()),
         ]);
     }
 

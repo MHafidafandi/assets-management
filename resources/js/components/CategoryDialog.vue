@@ -13,6 +13,7 @@ import Input from './ui/input/Input.vue';
 import Label from './ui/label/Label.vue';
 import RadioGroup from './ui/radio-group/RadioGroup.vue';
 import RadioGroupItem from './ui/radio-group/RadioGroupItem.vue';
+import AuditableTable from './AuditableTable.vue';
 
 const props = defineProps<{
     label?: string;
@@ -38,7 +39,9 @@ function onSuccess() {
 </script>
 
 <template>
-    <DialogContent class="fixed top-1/2 sm:max-w-106.25">
+    <DialogContent
+        class="fixed top-1/2 left-1/2 max-h-[90vh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto sm:max-w-2xl"
+    >
         <DialogHeader>
             <DialogTitle>{{
                 props.label || (isEdit ? 'Edit Category' : 'Create Category')
@@ -48,7 +51,12 @@ function onSuccess() {
             </DialogDescription>
         </DialogHeader>
 
-        <Form v-bind="formTarget" v-slot="{ errors, processing }" class="" @success="onSuccess">
+        <Form
+            v-bind="formTarget"
+            v-slot="{ errors, processing }"
+            class="w-full"
+            @success="onSuccess"
+        >
             <div class="grid gap-2">
                 <div class="grid gap-3">
                     <Label for="name">Name</Label>
@@ -75,7 +83,9 @@ function onSuccess() {
                         id="is_active"
                         name="is_active"
                         :tabindex="5"
-                        :default-value="props.category?.is_active ? '1' : '0'"
+                        :default-value="
+                            props.category?.is_active ? '1' : '0'
+                        "
                     >
                         <div class="flex items-center space-x-2">
                             <RadioGroupItem name="is_active" value="1" />
@@ -108,5 +118,7 @@ function onSuccess() {
                 </Button>
             </div>
         </Form>
+
+        <AuditableTable auditable-type="Category" />
     </DialogContent>
 </template>

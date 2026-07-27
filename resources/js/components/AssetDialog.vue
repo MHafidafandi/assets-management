@@ -14,6 +14,7 @@ import Input from './ui/input/Input.vue';
 import Label from './ui/label/Label.vue';
 import RadioGroup from './ui/radio-group/RadioGroup.vue';
 import RadioGroupItem from './ui/radio-group/RadioGroupItem.vue';
+import AuditableTable from './AuditableTable.vue';
 
 const props = defineProps<{
     label?: string;
@@ -66,7 +67,7 @@ function removeSpec(index: number) {
 
 <template>
     <DialogContent
-        class="fixed top-1/2 max-h-[90vh] overflow-y-auto sm:max-w-106.25"
+        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto sm:max-w-2xl"
     >
         <DialogHeader>
             <DialogTitle>{{
@@ -269,5 +270,7 @@ function removeSpec(index: number) {
                 </Button>
             </div>
         </Form>
+
+        <AuditableTable auditable-type="Asset" />
     </DialogContent>
 </template>

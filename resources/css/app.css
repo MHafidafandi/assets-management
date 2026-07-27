@@ -1,0 +1,371 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@import 'tailwindcss';
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme inline {
+    --font-sans:
+        Inter, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        'Liberation Mono', 'Courier New', monospace;
+
+    /* Typography - Headlines */
+    --text-headline-lg: 30px;
+    --text-headline-lg--line-height: 38px;
+    --text-headline-lg--font-weight: 600;
+    --text-headline-lg--letter-spacing: -0.02em;
+
+    --text-headline-md: 24px;
+    --text-headline-md--line-height: 32px;
+    --text-headline-md--font-weight: 600;
+    --text-headline-md--letter-spacing: -0.01em;
+
+    --text-headline-sm: 20px;
+    --text-headline-sm--line-height: 28px;
+    --text-headline-sm--font-weight: 600;
+
+    --text-body-lg: 16px;
+    --text-body-lg--line-height: 24px;
+    --text-body-lg--font-weight: 400;
+
+    --text-body-md: 14px;
+    --text-body-md--line-height: 20px;
+    --text-body-md--font-weight: 400;
+
+    --text-body-sm: 13px;
+    --text-body-sm--line-height: 18px;
+    --text-body-sm--font-weight: 400;
+
+    --text-label-md: 12px;
+    --text-label-md--line-height: 16px;
+    --text-label-md--font-weight: 600;
+    --text-label-md--letter-spacing: 0.05em;
+
+    --text-mono-label: 12px;
+    --text-mono-label--line-height: 16px;
+    --text-mono-label--font-weight: 500;
+
+    /* Colors - Primary (Deep Navy) */
+    --color-primary: #00355f;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #0f4c81;
+    --color-on-primary-container: #8ebdf9;
+    --color-primary-fixed: #d2e4ff;
+    --color-primary-fixed-dim: #a0c9ff;
+    --color-on-primary-fixed: #001c37;
+    --color-on-primary-fixed-variant: #07497d;
+
+    /* Colors - Secondary (Slate) */
+    --color-secondary: #505f76;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #d0e1fb;
+    --color-on-secondary-container: #54647a;
+    --color-secondary-fixed: #d3e4fe;
+    --color-secondary-fixed-dim: #b7c8e1;
+    --color-on-secondary-fixed: #0b1c30;
+    --color-on-secondary-fixed-variant: #38485d;
+
+    /* Colors - Tertiary (Warm Brown) */
+    --color-tertiary: #532800;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #743b00;
+    --color-on-tertiary-container: #f9a767;
+    --color-tertiary-fixed: #ffdcc4;
+    --color-tertiary-fixed-dim: #ffb780;
+    --color-on-tertiary-fixed: #2f1400;
+    --color-on-tertiary-fixed-variant: #6f3800;
+
+    /* Colors - Surface */
+    --color-surface: #f7f9fb;
+    --color-surface-dim: #d8dadc;
+    --color-surface-bright: #f7f9fb;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f2f4f6;
+    --color-surface-container: #eceef0;
+    --color-surface-container-high: #e6e8ea;
+    --color-surface-container-highest: #e0e3e5;
+    --color-on-surface: #191c1e;
+    --color-on-surface-variant: #42474f;
+    --color-surface-tint: #2d6197;
+    --color-surface-variant: #e0e3e5;
+
+    /* Colors - Inverse */
+    --color-inverse-surface: #2d3133;
+    --color-inverse-on-surface: #eff1f3;
+    --color-inverse-primary: #a0c9ff;
+
+    /* Colors - Outline */
+    --color-outline: #727780;
+    --color-outline-variant: #c2c7d1;
+
+    /* Colors - Error */
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+
+    /* Colors - Background */
+    --color-background: #f7f9fb;
+    --color-on-background: #191c1e;
+
+    /* Status Colors - Success (Green) */
+    --color-success: #16a34a;
+    --color-success-container: #dcfce7;
+    --color-on-success-container: #14532d;
+
+    /* Status Colors - Warning (Amber) */
+    --color-warning: #d97706;
+    --color-warning-container: #fef3c7;
+    --color-on-warning-container: #78350f;
+
+    /* Status Colors - Info (Blue) */
+    --color-info: #2563eb;
+    --color-info-container: #dbeafe;
+    --color-on-info-container: #1e3a8a;
+
+    /* Status Colors - Queued/Neutral */
+    --color-queued: #e0e3e5;
+    --color-on-queued: #42474f;
+
+    /* Border Radius */
+    --radius-sm: 0.125rem;
+    --radius-default: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
+    --radius-2xl: 1rem;
+    --radius-3xl: 1.5rem;
+
+    /* Spacing */
+    --spacing-base: 4px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    /* Container */
+    --container-max: 1440px;
+    --container-gutter: 16px;
+
+    /* Shadows - Elevation */
+    --shadow-level-1: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-level-2: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-level-3: 0px 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-level-4: 0px 16px 48px rgba(0, 0, 0, 0.12);
+
+    /* Table Row Heights */
+    --table-row-comfortable: 48px;
+    --table-row-compact: 40px;
+
+    /* Input Height */
+    --input-height: 40px;
+    --font-heading:
+        var(--font-sans);
+    --color-sidebar-ring:
+        var(--sidebar-ring);
+    --color-sidebar-border:
+        var(--sidebar-border);
+    --color-sidebar-accent-foreground:
+        var(--sidebar-accent-foreground);
+    --color-sidebar-accent:
+        var(--sidebar-accent);
+    --color-sidebar-primary-foreground:
+        var(--sidebar-primary-foreground);
+    --color-sidebar-primary:
+        var(--sidebar-primary);
+    --color-sidebar-foreground:
+        var(--sidebar-foreground);
+    --color-sidebar:
+        var(--sidebar);
+    --color-chart-5:
+        var(--chart-5);
+    --color-chart-4:
+        var(--chart-4);
+    --color-chart-3:
+        var(--chart-3);
+    --color-chart-2:
+        var(--chart-2);
+    --color-chart-1:
+        var(--chart-1);
+    --color-ring:
+        var(--ring);
+    --color-input:
+        var(--input);
+    --color-border:
+        var(--border);
+    --color-destructive:
+        var(--destructive);
+    --color-accent-foreground:
+        var(--accent-foreground);
+    --color-accent:
+        var(--accent);
+    --color-muted-foreground:
+        var(--muted-foreground);
+    --color-muted:
+        var(--muted);
+    --color-secondary-foreground:
+        var(--secondary-foreground);
+    --color-primary-foreground:
+        var(--primary-foreground);
+    --color-popover-foreground:
+        var(--popover-foreground);
+    --color-popover:
+        var(--popover);
+    --color-card-foreground:
+        var(--card-foreground);
+    --color-card:
+        var(--card);
+    --color-foreground:
+        var(--foreground);
+}
+
+:root {
+    --radius:
+        0.625rem;
+    --background:
+        oklch(1 0 0);
+    --foreground:
+        oklch(0.145 0 0);
+    --card:
+        oklch(1 0 0);
+    --card-foreground:
+        oklch(0.145 0 0);
+    --popover:
+        oklch(1 0 0);
+    --popover-foreground:
+        oklch(0.145 0 0);
+    --primary:
+        oklch(0.205 0 0);
+    --primary-foreground:
+        oklch(0.985 0 0);
+    --secondary:
+        oklch(0.97 0 0);
+    --secondary-foreground:
+        oklch(0.205 0 0);
+    --muted:
+        oklch(0.97 0 0);
+    --muted-foreground:
+        oklch(0.556 0 0);
+    --accent:
+        oklch(0.97 0 0);
+    --accent-foreground:
+        oklch(0.205 0 0);
+    --destructive:
+        oklch(0.577 0.245 27.325);
+    --border:
+        oklch(0.922 0 0);
+    --input:
+        oklch(0.922 0 0);
+    --ring:
+        oklch(0.708 0 0);
+    --chart-1:
+        oklch(0.646 0.222 41.116);
+    --chart-2:
+        oklch(0.6 0.118 184.704);
+    --chart-3:
+        oklch(0.398 0.07 227.392);
+    --chart-4:
+        oklch(0.828 0.189 84.429);
+    --chart-5:
+        oklch(0.769 0.188 70.08);
+    --sidebar:
+        oklch(0.985 0 0);
+    --sidebar-foreground:
+        oklch(0.145 0 0);
+    --sidebar-primary:
+        oklch(0.205 0 0);
+    --sidebar-primary-foreground:
+        oklch(0.985 0 0);
+    --sidebar-accent:
+        oklch(0.97 0 0);
+    --sidebar-accent-foreground:
+        oklch(0.205 0 0);
+    --sidebar-border:
+        oklch(0.922 0 0);
+    --sidebar-ring:
+        oklch(0.708 0 0);
+}
+
+.dark {
+    --background:
+        oklch(0.145 0 0);
+    --foreground:
+        oklch(0.985 0 0);
+    --card:
+        oklch(0.205 0 0);
+    --card-foreground:
+        oklch(0.985 0 0);
+    --popover:
+        oklch(0.205 0 0);
+    --popover-foreground:
+        oklch(0.985 0 0);
+    --primary:
+        oklch(0.922 0 0);
+    --primary-foreground:
+        oklch(0.205 0 0);
+    --secondary:
+        oklch(0.269 0 0);
+    --secondary-foreground:
+        oklch(0.985 0 0);
+    --muted:
+        oklch(0.269 0 0);
+    --muted-foreground:
+        oklch(0.708 0 0);
+    --accent:
+        oklch(0.269 0 0);
+    --accent-foreground:
+        oklch(0.985 0 0);
+    --destructive:
+        oklch(0.704 0.191 22.216);
+    --border:
+        oklch(1 0 0 / 10%);
+    --input:
+        oklch(1 0 0 / 15%);
+    --ring:
+        oklch(0.556 0 0);
+    --chart-1:
+        oklch(0.488 0.243 264.376);
+    --chart-2:
+        oklch(0.696 0.17 162.48);
+    --chart-3:
+        oklch(0.769 0.188 70.08);
+    --chart-4:
+        oklch(0.627 0.265 303.9);
+    --chart-5:
+        oklch(0.645 0.246 16.439);
+    --sidebar:
+        oklch(0.205 0 0);
+    --sidebar-foreground:
+        oklch(0.985 0 0);
+    --sidebar-primary:
+        oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground:
+        oklch(0.985 0 0);
+    --sidebar-accent:
+        oklch(0.269 0 0);
+    --sidebar-accent-foreground:
+        oklch(0.985 0 0);
+    --sidebar-border:
+        oklch(1 0 0 / 10%);
+    --sidebar-ring:
+        oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}

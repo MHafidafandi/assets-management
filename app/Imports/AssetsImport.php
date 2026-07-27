@@ -2,9 +2,11 @@
 
 namespace App\Imports;
 
+use App\Exports\AssetsExport;
 use App\Models\Asset;
 use App\Models\Category;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -12,7 +14,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class AssetsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class AssetsImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use Importable, SkipsFailures;
 
@@ -21,9 +23,10 @@ class AssetsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFa
     private function getFieldMap(): array
     {
         $map = [];
-        foreach (\App\Exports\AssetsExport::AVAILABLE_FIELDS as $dbField => $label) {
-            $map[\Illuminate\Support\Str::slug($label, '_')] = $dbField;
+        foreach (AssetsExport::AVAILABLE_FIELDS as $dbField => $label) {
+            $map[Str::slug($label, '_')] = $dbField;
         }
+
         return $map;
     }
 
@@ -60,7 +63,7 @@ class AssetsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFa
     public function rules(): array
     {
         $map = $this->getFieldMap();
-        
+
         $nameHeader = array_search('name', $map);
         $categoryHeader = array_search('category', $map);
         $purchaseDateHeader = array_search('purchase_date', $map);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\DataJob;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -35,14 +36,27 @@ class CategoryController extends Controller
                         $q->orderBy('created_at', 'desc');
                     }
                 },
-                fn($q) => $q->orderBy('created_at', 'desc')
+                fn ($q) => $q->orderBy('created_at', 'desc')
             )
             ->paginate(10)
             ->withQueryString();
 
+        $exportJob = DataJob::where('user_id', auth()->id())
+            ->where('type', 'categories')
+            ->where('direction', 'export')
+            ->latest()
+            ->first();
+        $importJob = DataJob::where('user_id', auth()->id())
+            ->where('type', 'categories')
+            ->where('direction', 'import')
+            ->latest()
+            ->first();
+
         return Inertia::render('categories/Index', [
             'categories' => $categories,
             'filters' => request()->only(['search', 'is_active', 'sort']),
+            'exportJob' => $exportJob,
+            'importJob' => $importJob,
         ]);
     }
 

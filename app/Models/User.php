@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -24,7 +25,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'role', 'is_active', 'uuid'])]
+#[Fillable(['name', 'email', 'password', 'role_id', 'is_active', 'uuid'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements Auditable
 {
@@ -54,13 +55,18 @@ class User extends Authenticatable implements Auditable
         ];
     }
 
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
     public function hasRole(string $role): bool
     {
-        return $this->role === $role;
+        return $this->role?->name === $role;
     }
 
     public function isAdministrator(): bool
     {
-        return $this->role === 'Administrator';
+        return $this->role?->name === 'Administrator';
     }
 }

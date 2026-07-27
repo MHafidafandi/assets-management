@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Exports\AssetsExport;
 use App\Exports\CategoriesExport;
+use App\Exports\TransactionExport;
 use App\Exports\UsersExport;
 use App\Jobs\ProcessAssetExport;
 use App\Jobs\ProcessCategoryExport;
+use App\Jobs\ProcessExportTransaction;
 use App\Jobs\ProcessUserExport;
 use App\Models\DataJob;
 use Illuminate\Http\RedirectResponse;
@@ -35,6 +37,7 @@ class ExportController extends Controller
 
     public function storeUsers(Request $request): RedirectResponse
     {
+
         $validated = $request->validate([
             'fields'   => ['nullable', 'array'],
             'fields.*' => ['in:' . implode(',', array_keys(UsersExport::AVAILABLE_FIELDS))],
@@ -65,6 +68,24 @@ class ExportController extends Controller
         ]);
 
         ProcessCategoryExport::dispatch($exportJob->id, $validated['fields'] ?? []);
+
+        return redirect()->back()->with('success', 'File sedang diproses di background.');
+    }
+
+    public function storeTransactions(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'fields'   => ['nullable', 'array'],
+            'fields.*' => ['in:' . implode(',', array_keys(TransactionExport::AVAILABLE_FIELDS))],
+        ]);
+
+        $exportJob = DataJob::create([
+            'user_id' => auth()->id(),
+            'type'    => 'transactions',
+            'status'  => 'queued',
+        ]);
+
+        ProcessExportTransaction::dispatch($exportJob->id, $validated['fields'] ?? []);
 
         return redirect()->back()->with('success', 'File sedang diproses di background.');
     }

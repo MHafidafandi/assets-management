@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ChevronLeft, ChevronRight, Edit, Plus, Search, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from '@lucide/vue';
+import {
+    ChevronLeft,
+    ChevronRight,
+    Edit,
+    Plus,
+    Search,
+    Trash2,
+    ArrowUpDown,
+    ArrowUp,
+    ArrowDown,
+} from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import CategoryDeleteDialog from '@/components/CategoryDeleteDialog.vue';
 import CategoryDialog from '@/components/CategoryDialog.vue';
+import ExportButton from '@/components/ExportButton.vue';
+import ImportButton from '@/components/ImportButton.vue';
 import AlertDialog from '@/components/ui/alert-dialog/AlertDialog.vue';
 import AlertDialogTrigger from '@/components/ui/alert-dialog/AlertDialogTrigger.vue';
 import Button from '@/components/ui/button/Button.vue';
@@ -12,10 +24,15 @@ import Dialog from '@/components/ui/dialog/Dialog.vue';
 import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
 import { getAvatarColor } from '@/helper/colors';
 import { getInitials } from '@/helper/get-initial';
+import { store as exportCategories } from '@/routes/exports/categories';
+import { store as importCategories } from '@/routes/imports/categories';
 import type { PaginatedCategory } from '@/types/category';
+import type { DataJob } from '@/types/data-job';
 
 const props = defineProps<{
     categories: PaginatedCategory;
+    exportJob?: DataJob;
+    importJob?: DataJob;
     filters: {
         search: string;
         is_active: string;
@@ -34,9 +51,17 @@ let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 const applyFilters = () => {
     const query: Record<string, string> = {};
 
-    if (search.value !== '') query.search = search.value;
-    if (activeFilter.value !== '') query.is_active = activeFilter.value;
-    if (sortFilter.value !== '') query.sort = sortFilter.value;
+    if (search.value !== '') {
+        query.search = search.value;
+    }
+
+    if (activeFilter.value !== '') {
+        query.is_active = activeFilter.value;
+    }
+
+    if (sortFilter.value !== '') {
+        query.sort = sortFilter.value;
+    }
 
     router.get(CategoryController.index().url, query, {
         preserveState: true,
@@ -46,7 +71,10 @@ const applyFilters = () => {
 };
 
 watch(search, () => {
-    if (searchTimeout) clearTimeout(searchTimeout);
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+
     searchTimeout = setTimeout(() => applyFilters(), 300);
 });
 
@@ -65,8 +93,14 @@ const toggleSort = (field: string) => {
 };
 
 const getSortIcon = (field: string) => {
-    if (sortFilter.value === field) return ArrowUp;
-    if (sortFilter.value === `-${field}`) return ArrowDown;
+    if (sortFilter.value === field) {
+        return ArrowUp;
+    }
+
+    if (sortFilter.value === `-${field}`) {
+        return ArrowDown;
+    }
+
     return ArrowUpDown;
 };
 
@@ -106,9 +140,18 @@ const paginationPages = computed(() => {
 
 function goToPage(page: number) {
     const query: Record<string, string> = { page: String(page) };
-    if (search.value) query.search = search.value;
-    if (activeFilter.value !== '') query.is_active = activeFilter.value;
-    if (sortFilter.value !== '') query.sort = sortFilter.value;
+
+    if (search.value) {
+        query.search = search.value;
+    }
+
+    if (activeFilter.value !== '') {
+        query.is_active = activeFilter.value;
+    }
+
+    if (sortFilter.value !== '') {
+        query.sort = sortFilter.value;
+    }
 
     router.get(CategoryController.index().url, query, {
         preserveState: true,
@@ -120,7 +163,7 @@ function goToPage(page: number) {
 <template>
     <Head title="Categories" />
     <div
-        v-if="$page.props.auth.user.role === 'Administrator'"
+        v-if="$page.props.auth.user.role.name === 'Administrator'"
         class="flex w-full flex-col gap-lg p-xl"
     >
         <!-- Page Header -->
@@ -133,21 +176,36 @@ function goToPage(page: number) {
                     Manage product categories and their properties.
                 </p>
             </div>
-            <Dialog v-model:open="createDialogOpen">
-                <DialogTrigger>
-                    <Button
-                        class="flex items-center gap-sm rounded-md px-lg py-sm text-label-md text-on-primary transition-all duration-200 active:scale-95"
-                    >
-                        <Plus class="ml-2 size-4.5" />
-                        <span class="mr-2">Add New Category</span>
-                    </Button>
-                </DialogTrigger>
-                <CategoryDialog
-                    label="Create Category"
-                    Description="Fill in the details to create a new category."
-                    @close="createDialogOpen = false"
+            <div class="flex flex-row items-center gap-md">
+                <Dialog v-model:open="createDialogOpen">
+                    <DialogTrigger as-child>
+                        <Button
+                            class="flex items-center gap-sm rounded-md px-lg py-sm text-label-md text-on-primary transition-all duration-200 active:scale-95"
+                        >
+                            <Plus class="ml-2 size-4.5" />
+                            <span class="mr-2">Add New Category</span>
+                        </Button>
+                    </DialogTrigger>
+                    <CategoryDialog
+                        label="Create Category"
+                        Description="Fill in the details to create a new category."
+                        @close="createDialogOpen = false"
+                    />
+                </Dialog>
+                <ImportButton
+                    :import-job="importJob"
+                    :route-form="importCategories.form()"
                 />
-            </Dialog>
+                <ExportButton
+                    :export-job="exportJob"
+                    :route-form="exportCategories.form()"
+                    :available-fields="{
+                        name: 'Nama Kategori',
+                        is_active: 'Status',
+                        created_at: 'Dibuat Pada',
+                    }"
+                />
+            </div>
         </div>
 
         <!-- Filter Bar -->
@@ -299,7 +357,11 @@ function goToPage(page: number) {
                             <!-- Actions -->
                             <td class="px-lg py-md text-right">
                                 <div class="flex justify-end gap-xs">
-                                    <Dialog v-model:open="editDialogOpenMap[category.id]">
+                                    <Dialog
+                                        v-model:open="
+                                            editDialogOpenMap[category.id]
+                                        "
+                                    >
                                         <DialogTrigger>
                                             <div
                                                 class="rounded p-xs text-on-surface-variant transition-colors hover:bg-surface-container-high"
@@ -312,7 +374,10 @@ function goToPage(page: number) {
                                             :category="category"
                                             label="Edit Category"
                                             Description="Update the details of this category."
-                                            @close="editDialogOpenMap[category.id] = false"
+                                            @close="
+                                                editDialogOpenMap[category.id] =
+                                                    false
+                                            "
                                         />
                                     </Dialog>
                                     <AlertDialog>

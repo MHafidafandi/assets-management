@@ -37,16 +37,22 @@ function onSuccess() {
 
 // Convert date for datetime-local or date input
 const formattedDate = computed(() => {
-    if (!props.asset?.purchase_date) return '';
+    if (!props.asset?.purchase_date) {
+        return '';
+    }
+
     // if purchase_date is "2023-10-10 12:00:00", we need to extract "2023-10-10"
     return props.asset.purchase_date.split('T')[0].split(' ')[0];
 });
 
 // Dynamic Specifications
 const specs = ref<Array<{ key: string; value: string }>>(
-    props.asset?.specification 
-        ? Object.entries(props.asset.specification).map(([k, v]) => ({ key: k, value: String(v) }))
-        : []
+    props.asset?.specification
+        ? Object.entries(props.asset.specification).map(([k, v]) => ({
+              key: k,
+              value: String(v),
+          }))
+        : [],
 );
 
 function addSpec() {
@@ -59,7 +65,9 @@ function removeSpec(index: number) {
 </script>
 
 <template>
-    <DialogContent class="fixed top-1/2 sm:max-w-106.25 overflow-y-auto max-h-[90vh]">
+    <DialogContent
+        class="fixed top-1/2 max-h-[90vh] overflow-y-auto sm:max-w-106.25"
+    >
         <DialogHeader>
             <DialogTitle>{{
                 props.label || (isEdit ? 'Edit Asset' : 'Create Asset')
@@ -92,9 +100,15 @@ function removeSpec(index: number) {
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="thumbnail">Thumbnail Image (JPEG, PNG, JPG, GIF - Max 2MB)</Label>
+                    <Label for="thumbnail"
+                        >Thumbnail Image (JPEG, PNG, JPG, GIF - Max 2MB)</Label
+                    >
                     <div v-if="props.asset?.thumbnail" class="mb-2">
-                        <img :src="`/storage/${props.asset.thumbnail}`" class="h-20 w-20 object-cover rounded-md border" alt="Current Thumbnail" />
+                        <img
+                            :src="`/storage/${props.asset.thumbnail}`"
+                            class="h-20 w-20 rounded-md border object-cover"
+                            alt="Current Thumbnail"
+                        />
                     </div>
                     <Input
                         id="thumbnail"
@@ -103,7 +117,10 @@ function removeSpec(index: number) {
                         accept="image/*"
                         :class="{ 'border-destructive': errors.thumbnail }"
                     />
-                    <InputError v-if="errors.thumbnail" :message="errors.thumbnail" />
+                    <InputError
+                        v-if="errors.thumbnail"
+                        :message="errors.thumbnail"
+                    />
                 </div>
 
                 <div class="grid gap-2">
@@ -112,20 +129,25 @@ function removeSpec(index: number) {
                         id="category_id"
                         name="category_id"
                         required
-                        class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         :class="{ 'border-destructive': errors.category_id }"
                     >
-                        <option value="" disabled :selected="!props.asset">Select Category</option>
-                        <option 
-                            v-for="cat in categories" 
-                            :key="cat.id" 
+                        <option value="" disabled :selected="!props.asset">
+                            Select Category
+                        </option>
+                        <option
+                            v-for="cat in categories"
+                            :key="cat.id"
                             :value="cat.id"
                             :selected="props.asset?.category_id === cat.id"
                         >
                             {{ cat.name }}
                         </option>
                     </select>
-                    <InputError v-if="errors.category_id" :message="errors.category_id" />
+                    <InputError
+                        v-if="errors.category_id"
+                        :message="errors.category_id"
+                    />
                 </div>
 
                 <div class="grid gap-2">
@@ -138,7 +160,10 @@ function removeSpec(index: number) {
                         required
                         :class="{ 'border-destructive': errors.purchase_date }"
                     />
-                    <InputError v-if="errors.purchase_date" :message="errors.purchase_date" />
+                    <InputError
+                        v-if="errors.purchase_date"
+                        :message="errors.purchase_date"
+                    />
                 </div>
 
                 <div class="grid gap-2">
@@ -164,7 +189,9 @@ function removeSpec(index: number) {
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="attachment">PDF Attachment (100KB - 500KB)</Label>
+                    <Label for="attachment"
+                        >PDF Attachment (100KB - 500KB)</Label
+                    >
                     <Input
                         id="attachment"
                         type="file"
@@ -172,19 +199,33 @@ function removeSpec(index: number) {
                         accept="application/pdf"
                         :class="{ 'border-destructive': errors.attachment }"
                     />
-                    <p class="text-[11px] text-on-surface-variant">Leave blank to keep existing attachment on edit.</p>
-                    <InputError v-if="errors.attachment" :message="errors.attachment" />
+                    <p class="text-[11px] text-on-surface-variant">
+                        Leave blank to keep existing attachment on edit.
+                    </p>
+                    <InputError
+                        v-if="errors.attachment"
+                        :message="errors.attachment"
+                    />
                 </div>
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
                         <Label>Specifications</Label>
-                        <Button type="button" variant="outline" size="sm" @click="addSpec">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            @click="addSpec"
+                        >
                             Add Spec
                         </Button>
                     </div>
-                    
-                    <div v-for="(spec, index) in specs" :key="index" class="flex gap-2 items-center">
+
+                    <div
+                        v-for="(spec, index) in specs"
+                        :key="index"
+                        class="flex items-center gap-2"
+                    >
                         <Input
                             v-model="spec.key"
                             placeholder="Key (e.g. Merk)"
@@ -198,11 +239,19 @@ function removeSpec(index: number) {
                             class="w-1/2"
                             required
                         />
-                        <Button type="button" variant="destructive" size="sm" @click="removeSpec(index)">
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            @click="removeSpec(index)"
+                        >
                             Remove
                         </Button>
                     </div>
-                    <InputError v-if="errors.specification" :message="errors.specification" />
+                    <InputError
+                        v-if="errors.specification"
+                        :message="errors.specification"
+                    />
                 </div>
 
                 <Button

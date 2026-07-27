@@ -18,6 +18,7 @@ const props = defineProps<{
     label?: string;
     User?: UserDB;
     Description?: string;
+    roles: { id: number; name: string }[];
 }>();
 
 const emit = defineEmits<{
@@ -123,31 +124,24 @@ function onSuccess() {
                 </div>
 
                 <div class="grid gap-3">
-                    <Label for="role">Role</Label>
-                    <RadioGroup
-                        id="role"
-                        name="role"
-                        :default-value="props.User?.role ?? 'Staff'"
-                        :tabindex="4"
+                    <Label for="role_id">Role</Label>
+                    <select
+                        id="role_id"
+                        name="role_id"
+                        class="w-full rounded-lg border border-outline-variant bg-surface py-sm px-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary"
+                        :value="props.User?.role_id"
+                        required
                     >
-                        <div class="flex items-center space-x-2">
-                            <RadioGroupItem
-                                id="administrator"
-                                name="role"
-                                value="Administrator"
-                            />
-                            <Label for="administrator">Administrator</Label>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <RadioGroupItem
-                                id="staff"
-                                name="role"
-                                value="Staff"
-                            />
-                            <Label for="staff">Staff</Label>
-                        </div>
-                        <InputError v-if="errors.role" :message="errors.role" />
-                    </RadioGroup>
+                        <option value="" disabled selected>Pilih Role</option>
+                        <option
+                            v-for="role in props.roles"
+                            :key="role.id"
+                            :value="role.id"
+                        >
+                            {{ role.name }}
+                        </option>
+                    </select>
+                    <InputError v-if="errors.role_id" :message="errors.role_id" />
                 </div>
                 <div v-if="props.User" class="grid gap-3">
                     <Label for="is_active">Status</Label>

@@ -4,7 +4,8 @@ export interface UserDB {
     id: number;
     name: string;
     email: string;
-    role: string;
+    role_id: number;
+    role?: { id: number; name: string };
     is_active: boolean;
 }
 

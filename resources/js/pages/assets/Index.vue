@@ -16,11 +16,14 @@ import { index as assetsIndex } from '@/actions/App/Http/Controllers/AssetContro
 import AssetDeleteDialog from '@/components/AssetDeleteDialog.vue';
 import AssetDialog from '@/components/AssetDialog.vue';
 import ExportButton from '@/components/ExportButton.vue';
+import ImportButton from '@/components/ImportButton.vue';
 import AlertDialog from '@/components/ui/alert-dialog/AlertDialog.vue';
 import AlertDialogTrigger from '@/components/ui/alert-dialog/AlertDialogTrigger.vue';
 import Button from '@/components/ui/button/Button.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
+import { store as exportAssets } from '@/routes/exports/assets';
+import { store as importAssets } from '@/routes/imports/assets';
 import type { PaginatedAssets } from '@/types/asset';
 import type { Category } from '@/types/category';
 import type { DataJob } from '@/types/data-job';
@@ -180,9 +183,9 @@ function goToPage(page: number) {
                     Manage all company assets.
                 </p>
             </div>
-            <div class="flex flex-col gap-sm">
+            <div class="flex flex-row items-center gap-md">
                 <Dialog v-model:open="createDialogOpen">
-                    <DialogTrigger>
+                    <DialogTrigger as-child>
                         <Button
                             class="flex items-center gap-sm rounded-md px-lg py-sm text-label-md text-on-primary transition-all duration-200 active:scale-95"
                         >
@@ -197,8 +200,22 @@ function goToPage(page: number) {
                         @close="createDialogOpen = false"
                     />
                 </Dialog>
-                <ExportButton :export-job="exportJob" />
-                <ImportButton :import-job="importJob" />
+                <ImportButton
+                    :import-job="importJob"
+                    :route-form="importAssets.form()"
+                />
+                <ExportButton
+                    :export-job="exportJob"
+                    :route-form="exportAssets.form()"
+                    :available-fields="{
+                        name: 'Nama Aset',
+                        category: 'Kategori',
+                        purchase_date: 'Tanggal Pembelian',
+                        is_active: 'Status',
+                        specification: 'Spesifikasi',
+                        created_at: 'Dibuat Pada',
+                    }"
+                />
             </div>
         </div>
 
@@ -352,12 +369,12 @@ function goToPage(page: number) {
                                 <img
                                     v-if="asset.thumbnail"
                                     :src="`/storage/${asset.thumbnail}`"
-                                    class="size-12 rounded-lg object-cover border"
+                                    class="size-12 rounded-lg border object-cover"
                                     alt="Asset Thumbnail"
                                 />
                                 <div
                                     v-else
-                                    class="flex size-12 items-center justify-center rounded-lg bg-surface-container-high text-on-surface-variant border"
+                                    class="flex size-12 items-center justify-center rounded-lg border bg-surface-container-high text-on-surface-variant"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -371,7 +388,14 @@ function goToPage(page: number) {
                                         stroke-linejoin="round"
                                     >
                                         <path d="m22 8-6 4 6 4V8Z" />
-                                        <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+                                        <rect
+                                            width="14"
+                                            height="12"
+                                            x="2"
+                                            y="6"
+                                            rx="2"
+                                            ry="2"
+                                        />
                                     </svg>
                                 </div>
                             </td>
@@ -456,8 +480,8 @@ function goToPage(page: number) {
                                             ><div
                                                 class="rounded p-xs text-on-surface-variant transition-colors hover:bg-surface-container-high"
                                                 title="Edit"
-                                             >
-                                                 <Edit class="size-5" /></div
+                                            >
+                                                <Edit class="size-5" /></div
                                         ></DialogTrigger>
                                         <AssetDialog
                                             :asset="asset"

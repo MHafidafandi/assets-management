@@ -2,8 +2,8 @@
 import { Form } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { store, update } from '@/routes/transactions';
-import type { AssetTransaction } from '@/types/transaction';
 import type { Asset } from '@/types/asset';
+import type { AssetTransaction } from '@/types/transaction';
 import type { UserDB } from '@/types/user';
 import InputError from './InputError.vue';
 import Button from './ui/button/Button.vue';
@@ -38,12 +38,18 @@ function onSuccess() {
 }
 
 const formattedBorrowedAt = computed(() => {
-    if (!props.transaction?.borrowed_at) return '';
+    if (!props.transaction?.borrowed_at) {
+        return '';
+    }
+
     return props.transaction.borrowed_at.split('T')[0].split(' ')[0];
 });
 
 const formattedReturnedAt = computed(() => {
-    if (!props.transaction?.returned_at) return '';
+    if (!props.transaction?.returned_at) {
+        return '';
+    }
+
     return props.transaction.returned_at.split('T')[0].split(' ')[0];
 });
 </script>
@@ -52,7 +58,8 @@ const formattedReturnedAt = computed(() => {
     <DialogContent class="fixed top-1/2 sm:max-w-106.25">
         <DialogHeader>
             <DialogTitle>{{
-                props.label || (isEdit ? 'Edit Transaction' : 'Create Transaction')
+                props.label ||
+                (isEdit ? 'Edit Transaction' : 'Create Transaction')
             }}</DialogTitle>
             <DialogDescription>
                 {{ props.Description }}
@@ -72,20 +79,29 @@ const formattedReturnedAt = computed(() => {
                         id="asset_id"
                         name="asset_id"
                         required
-                        class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         :class="{ 'border-destructive': errors.asset_id }"
                     >
-                        <option value="" disabled :selected="!props.transaction">Select Asset</option>
-                        <option 
-                            v-for="asset in assets" 
-                            :key="asset.id" 
+                        <option
+                            value=""
+                            disabled
+                            :selected="!props.transaction"
+                        >
+                            Select Asset
+                        </option>
+                        <option
+                            v-for="asset in assets"
+                            :key="asset.id"
                             :value="asset.id"
                             :selected="props.transaction?.asset_id === asset.id"
                         >
                             {{ asset.name }}
                         </option>
                     </select>
-                    <InputError v-if="errors.asset_id" :message="errors.asset_id" />
+                    <InputError
+                        v-if="errors.asset_id"
+                        :message="errors.asset_id"
+                    />
                 </div>
 
                 <div class="grid gap-2">
@@ -94,20 +110,29 @@ const formattedReturnedAt = computed(() => {
                         id="user_id"
                         name="user_id"
                         required
-                        class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         :class="{ 'border-destructive': errors.user_id }"
                     >
-                        <option value="" disabled :selected="!props.transaction">Select User</option>
-                        <option 
-                            v-for="user in users" 
-                            :key="user.id" 
+                        <option
+                            value=""
+                            disabled
+                            :selected="!props.transaction"
+                        >
+                            Select User
+                        </option>
+                        <option
+                            v-for="user in users"
+                            :key="user.id"
                             :value="user.id"
                             :selected="props.transaction?.user_id === user.id"
                         >
                             {{ user.name }} ({{ user.email }})
                         </option>
                     </select>
-                    <InputError v-if="errors.user_id" :message="errors.user_id" />
+                    <InputError
+                        v-if="errors.user_id"
+                        :message="errors.user_id"
+                    />
                 </div>
 
                 <div class="grid gap-2">
@@ -120,7 +145,10 @@ const formattedReturnedAt = computed(() => {
                         required
                         :class="{ 'border-destructive': errors.borrowed_at }"
                     />
-                    <InputError v-if="errors.borrowed_at" :message="errors.borrowed_at" />
+                    <InputError
+                        v-if="errors.borrowed_at"
+                        :message="errors.borrowed_at"
+                    />
                 </div>
 
                 <div class="grid gap-2">
@@ -128,7 +156,9 @@ const formattedReturnedAt = computed(() => {
                     <RadioGroup
                         id="is_returned"
                         name="is_returned"
-                        :default-value="props.transaction?.is_returned ? '1' : '0'"
+                        :default-value="
+                            props.transaction?.is_returned ? '1' : '0'
+                        "
                     >
                         <div class="flex items-center space-x-2">
                             <RadioGroupItem name="is_returned" value="1" />
@@ -154,7 +184,21 @@ const formattedReturnedAt = computed(() => {
                         :default-value="formattedReturnedAt"
                         :class="{ 'border-destructive': errors.returned_at }"
                     />
-                    <InputError v-if="errors.returned_at" :message="errors.returned_at" />
+                    <InputError
+                        v-if="errors.returned_at"
+                        :message="errors.returned_at"
+                    />
+                </div>
+                <div class="grid gap-2">
+                    <Label for="notes">Notes (Optional)</Label>
+                    <Input
+                        id="notes"
+                        type="text"
+                        :name="'notes[' + 0 + ']'"
+                        :default-value="String(props.transaction?.notes || '')"
+                        :class="{ 'border-destructive': errors.notes }"
+                    />
+                    <InputError v-if="errors.notes" :message="errors.notes" />
                 </div>
 
                 <Button

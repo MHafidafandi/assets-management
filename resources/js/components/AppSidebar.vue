@@ -6,12 +6,17 @@ import {
     ChartBarStacked,
     Database,
     Users,
+    LayoutDashboard,
+    ShieldAlert,
 } from '@lucide/vue';
+import { computed } from 'vue';
 import type { NavItem } from '@/types/nav-item.js';
 import NavMain from './NavMain.vue';
 import NavUser from './NavUser.vue';
 import Sidebar from './ui/sidebar/Sidebar.vue';
 import SidebarContent from './ui/sidebar/SidebarContent.vue';
+import SidebarFooter from './ui/sidebar/SidebarFooter.vue';
+import SidebarHeader from './ui/sidebar/SidebarHeader.vue';
 import SidebarMenu from './ui/sidebar/SidebarMenu.vue';
 import SidebarMenuButton from './ui/sidebar/SidebarMenuButton.vue';
 import SidebarMenuItem from './ui/sidebar/SidebarMenuItem.vue';
@@ -19,33 +24,59 @@ import SidebarMenuItem from './ui/sidebar/SidebarMenuItem.vue';
 const page = usePage();
 const name = page.props.name;
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Users',
-        href: '/users',
-        icon: Users,
-    },
-    {
-        title: 'Categories',
-        href: '/categories',
-        icon: ChartBarStacked,
-    },
-    {
-        title: 'Assets',
-        href: '/assets',
-        icon: Database,
-    },
-    {
-        title: 'Transactions',
-        href: '/transactions',
-        icon: ArrowLeftRight,
-    },
-    {
-        title: 'Audit Logs',
-        href: '/audit-logs',
-        icon: Activity,
-    },
-];
+const userRole = computed(() => {
+    const auth = page.props.auth as any;
+
+    return auth?.user?.role.name;
+});
+
+const mainNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/dashboard',
+            icon: LayoutDashboard,
+        },
+    ];
+
+    if (userRole.value === 'Administrator') {
+        items.push({
+            title: 'Users',
+            href: '/users',
+            icon: Users,
+        });
+        items.push({
+            title: 'Categories',
+            href: '/categories',
+            icon: ChartBarStacked,
+        });
+    }
+
+    items.push(
+        {
+            title: 'Assets',
+            href: '/assets',
+            icon: Database,
+        },
+        {
+            title: 'Transactions',
+            href: '/transactions',
+            icon: ArrowLeftRight,
+        },
+        {
+            title: 'Roles',
+            href: '/roles',
+            icon: ShieldAlert,
+        },
+        {
+            title: 'Audit Logs',
+            href: '/audit-logs',
+            icon: Activity,
+        },
+    );
+
+    return items;
+});
 </script>
 
 <template>

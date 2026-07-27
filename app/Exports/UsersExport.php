@@ -15,7 +15,7 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
         'email'     => 'Email',
         'role'      => 'Role',
         'is_active' => 'Status',
-        'created_at'=> 'Dibuat Pada',
+        'created_at' => 'Dibuat Pada',
     ];
 
     public function __construct(private array $fields = [])
@@ -27,7 +27,7 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
 
     public function query()
     {
-        return User::query()->orderBy('created_at', 'desc');
+        return User::query()->with('role')->orderBy('created_at', 'desc');
     }
 
     public function headings(): array
@@ -41,7 +41,7 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             return match ($field) {
                 'name'       => $user->name,
                 'email'      => $user->email,
-                'role'       => $user->role,
+                'role'       => $user->role->name,
                 'is_active'  => $user->is_active ? 'Aktif' : 'Nonaktif',
                 'created_at' => $user->created_at?->format('Y-m-d H:i'),
                 default      => '',

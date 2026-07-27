@@ -27,7 +27,6 @@ class ProcessUserExport implements ShouldQueue
 
         try {
             $fileName = 'exports/users_' . now()->format('Ymd_His') . '_' . $exportJob->uuid . '.xlsx';
-
             Excel::store(new UsersExport($this->fields), $fileName, 'public');
 
             $exportJob->update([

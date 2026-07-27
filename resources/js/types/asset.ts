@@ -1,10 +1,11 @@
-import type { PaginationLink } from './paginate';
 import type { Category } from './category';
+import type { PaginationLink } from './paginate';
 
 export interface Asset {
     id: number;
     category_id: number;
     name: string;
+    thumbnail?: string;
     purchase_date: string;
     specification: Record<string, string> | null;
     is_active: boolean;

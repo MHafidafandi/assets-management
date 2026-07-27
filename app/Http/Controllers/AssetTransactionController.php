@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\AssetTransaction;
+use App\Models\DataJob;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -44,11 +45,22 @@ class AssetTransactionController extends Controller
 
         $assets = Asset::select('id', 'name')->get();
         $users = User::select('id', 'name', 'email')->get();
-
+        $exportJob = DataJob::query()
+            ->where('type', 'transactions')
+            ->where('direction', 'export')
+            ->latest()
+            ->first();
+        $importJob = DataJob::query()
+            ->where('type', 'transactions')
+            ->where('direction', 'import')
+            ->latest()
+            ->first();
         return Inertia::render('transactions/Index', [
             'transactions' => $transactions,
             'assets' => $assets,
             'users' => $users,
+            'exportJob' => $exportJob,
+            'importJob' => $importJob,
             'filters' => request()->only(['search', 'is_returned', 'sort']),
         ]);
     }

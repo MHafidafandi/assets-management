@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\DataJob;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
@@ -15,14 +17,15 @@ class UserController extends Controller
     public function index(): Response
     {
         $users = User::query()
-            ->select('id', 'name', 'email', 'role', 'is_active')
+            ->with('role:id,name')
+            ->select('id', 'name', 'email', 'role_id', 'is_active')
             ->when(request('search'), function ($q, $search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->when(request('role'), fn ($q, $role) => $q->where('role', $role))
+            ->when(request('role_id'), fn ($q, $roleId) => $q->where('role_id', $roleId))
             ->when(request()->filled('is_active'), function ($q) {
                 $isActive = request('is_active');
                 $isActiveBool = filter_var($isActive, FILTER_VALIDATE_BOOLEAN);
@@ -33,7 +36,7 @@ class UserController extends Controller
                 request('sort'),
                 function ($q, $sort) {
                     $column = ltrim($sort, '-');
-                    if (in_array($column, ['name', 'email', 'role', 'is_active', 'created_at'])) {
+                    if (in_array($column, ['name', 'email', 'role_id', 'is_active', 'created_at'])) {
                         $q->orderBy($column, str_starts_with($sort, '-') ? 'desc' : 'asc');
                     } else {
                         $q->orderBy('created_at', 'desc');
@@ -44,9 +47,25 @@ class UserController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $roles = Role::select('id', 'name')->get();
+
+        $exportJob = DataJob::where('user_id', auth()->id())
+            ->where('type', 'users')
+            ->where('direction', 'export')
+            ->latest()
+            ->first();
+        $importJob = DataJob::where('user_id', auth()->id())
+            ->where('type', 'users')
+            ->where('direction', 'import')
+            ->latest()
+            ->first();
+
         return Inertia::render('users/Index', [
             'users' => $users,
-            'filters' => request()->only(['search', 'role', 'is_active', 'sort']),
+            'roles' => $roles,
+            'filters' => request()->only(['search', 'role_id', 'is_active', 'sort']),
+            'exportJob' => $exportJob,
+            'importJob' => $importJob,
         ]);
     }
 

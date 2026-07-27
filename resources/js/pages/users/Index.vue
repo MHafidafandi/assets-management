@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import {
     ChevronLeft,
     ChevronRight,
@@ -13,6 +13,8 @@ import {
 } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import { index as usersIndex } from '@/actions/App/Http/Controllers/UserController';
+import { store as exportUsers } from '@/routes/exports/users';
+import { store as importUsers } from '@/routes/imports/users';
 import AlertDialog from '@/components/ui/alert-dialog/AlertDialog.vue';
 import AlertDialogTrigger from '@/components/ui/alert-dialog/AlertDialogTrigger.vue';
 import { Button } from '@/components/ui/button';
@@ -20,15 +22,21 @@ import Dialog from '@/components/ui/dialog/Dialog.vue';
 import DialogTrigger from '@/components/ui/dialog/DialogTrigger.vue';
 import UserDeleteDialog from '@/components/UserDeleteDialog.vue';
 import UserDialog from '@/components/UserDialog.vue';
+import ExportButton from '@/components/ExportButton.vue';
+import ImportButton from '@/components/ImportButton.vue';
 import { getAvatarColor, getRoleBadgeClasses } from '@/helper/colors';
 import { getInitials } from '@/helper/get-initial';
 import type { PaginatedUsers } from '@/types/user';
+import type { DataJob } from '@/types/data-job';
 
 const props = defineProps<{
     users: PaginatedUsers;
+    roles: { id: number; name: string }[];
+    exportJob?: DataJob;
+    importJob?: DataJob;
     filters: {
         search?: string;
-        role?: string;
+        role_id?: string;
         is_active?: string;
         sort?: string;
     };
@@ -39,7 +47,7 @@ const editDialogOpenMap = ref<Record<number, boolean>>({});
 
 const search = ref(props.filters.search ?? '');
 const activeFilter = ref<string>(props.filters.is_active ?? '');
-const roleFilter = ref<string>(props.filters.role ?? '');
+const roleFilter = ref<string>(props.filters.role_id ?? '');
 const sortFilter = ref<string>(props.filters.sort ?? '');
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -56,7 +64,7 @@ function applyFilters() {
     }
 
     if (roleFilter.value) {
-        query.role = roleFilter.value;
+        query.role_id = roleFilter.value;
     }
 
     if (sortFilter.value) {
@@ -162,7 +170,7 @@ function goToPage(page: number) {
 <template>
     <Head title="User Accounts" />
     <div
-        v-if="$page.props.auth.user.role === 'Administrator'"
+        v-if="$page.props.auth.user.role.name === 'Administrator'"
         class="flex w-full flex-col gap-lg p-xl"
     >
         <!-- Page Header -->
@@ -175,21 +183,39 @@ function goToPage(page: number) {
                     Manage enterprise identities, roles, and access controls.
                 </p>
             </div>
-            <Dialog v-model:open="createDialogOpen">
-                <DialogTrigger>
-                    <Button
-                        class="flex items-center gap-sm rounded-md px-lg py-sm text-label-md text-on-primary transition-all duration-200 active:scale-95"
-                    >
-                        <UserPlus class="ml-2 size-4.5" />
-                        <span class="mr-2">Add New User</span>
-                    </Button>
-                </DialogTrigger>
-                <UserDialog
-                    label="Create User"
-                    Description="Fill in the details to create a new user account."
-                    @close="createDialogOpen = false"
+            <div class="flex flex-row items-center gap-md">
+                <Dialog v-model:open="createDialogOpen">
+                    <DialogTrigger as-child>
+                        <Button
+                            class="flex items-center gap-sm rounded-md px-lg py-sm text-label-md text-on-primary transition-all duration-200 active:scale-95"
+                        >
+                            <UserPlus class="ml-2 size-4.5" />
+                            <span class="mr-2">Add New User</span>
+                        </Button>
+                    </DialogTrigger>
+                    <UserDialog
+                        label="Create User"
+                        Description="Fill in the details to create a new user account."
+                        :roles="roles"
+                        @close="createDialogOpen = false"
+                    />
+                </Dialog>
+                <ImportButton
+                    :import-job="importJob"
+                    :route-form="importUsers.form()"
                 />
-            </Dialog>
+                <ExportButton
+                    :export-job="exportJob"
+                    :route-form="exportUsers.form()"
+                    :available-fields="{
+                        name: 'Nama',
+                        email: 'Email',
+                        role: 'Role',
+                        is_active: 'Status',
+                        created_at: 'Dibuat Pada',
+                    }"
+                />
+            </div>
         </div>
 
         <!-- Filter Bar -->
@@ -263,8 +289,13 @@ function goToPage(page: number) {
                     class="rounded-lg border border-outline-variant bg-surface py-sm pr-xl text-body-sm"
                 >
                     <option value="">All Roles</option>
-                    <option value="Administrator">Administrator</option>
-                    <option value="Staff">Staff</option>
+                    <option
+                        v-for="role in props.roles"
+                        :key="role.id"
+                        :value="role.id"
+                    >
+                        {{ role.name }}
+                    </option>
                 </select>
             </div>
         </div>
@@ -343,9 +374,13 @@ function goToPage(page: number) {
                             <td class="px-lg py-md">
                                 <span
                                     class="inline-flex items-center rounded-full px-sm py-0.5 text-[11px] font-bold"
-                                    :class="getRoleBadgeClasses(user.role)"
+                                    :class="
+                                        getRoleBadgeClasses(
+                                            user.role?.name || '',
+                                        )
+                                    "
                                 >
-                                    {{ user.role }}
+                                    {{ user.role?.name || '-' }}
                                 </span>
                             </td>
 
@@ -374,7 +409,11 @@ function goToPage(page: number) {
                             <!-- Actions -->
                             <td class="px-lg py-md text-right">
                                 <div class="flex justify-end gap-xs">
-                                    <Dialog v-model:open="editDialogOpenMap[user.id]">
+                                    <Dialog
+                                        v-model:open="
+                                            editDialogOpenMap[user.id]
+                                        "
+                                    >
                                         <DialogTrigger>
                                             <div
                                                 class="rounded p-xs text-on-surface-variant transition-colors hover:bg-surface-container-high"
@@ -387,7 +426,11 @@ function goToPage(page: number) {
                                             :User="user"
                                             label="Edit User"
                                             Description="Update the details of this user account."
-                                            @close="editDialogOpenMap[user.id] = false"
+                                            :roles="roles"
+                                            @close="
+                                                editDialogOpenMap[user.id] =
+                                                    false
+                                            "
                                         />
                                     </Dialog>
                                     <AlertDialog>

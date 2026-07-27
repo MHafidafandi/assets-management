@@ -32,7 +32,7 @@ class UpdateUserRequest extends FormRequest
                 'email',
                 Rule::unique('users')->ignore($userId),
             ],
-            'role' => 'sometimes|in:Administrator,Staff',
+            'role_id' => 'required|exists:roles,id',
             'is_active' => 'sometimes|boolean',
             'password' => 'nullable|string|min:8|confirmed',
         ];
@@ -44,7 +44,8 @@ class UpdateUserRequest extends FormRequest
             'name.required' => 'Nama user wajib diisi',
             'email.required' => 'Email wajib diisi',
             'email.unique' => 'Email sudah digunakan oleh user lain',
-            'role.in' => 'Role tidak valid',
+            'role_id.required' => 'Role wajib dipilih',
+            'role_id.exists' => 'Role tidak valid',
             'password.min' => 'Password minimal 8 karakter',
         ];
     }

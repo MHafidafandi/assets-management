@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessAssetImport;
 use App\Jobs\ProcessCategoryImport;
+use App\Jobs\ProcessTransactionImport;
 use App\Jobs\ProcessUserImport;
 use App\Models\DataJob;
 use Illuminate\Http\RedirectResponse;
@@ -67,6 +68,26 @@ class ImportController extends Controller
         ]);
 
         ProcessCategoryImport::dispatch($dataJob->id, $path);
+
+        return back()->with('success', 'File sedang diproses di background.');
+    }
+
+    public function transactions(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,csv', 'max:5120'],
+        ]);
+
+        $path = $request->file('file')->store('imports');
+
+        $dataJob = DataJob::create([
+            'user_id'   => auth()->id(),
+            'type'      => 'transactions',
+            'direction' => 'import',
+            'status'    => 'queued',
+        ]);
+
+        ProcessTransactionImport::dispatch($dataJob->id, $path);
 
         return back()->with('success', 'File sedang diproses di background.');
     }

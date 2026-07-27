@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use OwenIt\Auditing\Contracts\Auditable;
 
-#[Fillable(['name', 'category_id', 'purchase_date', 'specification', 'is_active', 'uuid'])]
+#[Fillable(['name', 'thumbnail', 'category_id', 'purchase_date', 'specification', 'is_active', 'uuid'])]
 class Asset extends Model implements Auditable
 {
     /** @use HasFactory<AssetFactory> */

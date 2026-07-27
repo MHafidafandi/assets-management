@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { store, update } from '@/routes/assets';
 import type { Asset } from '@/types/asset';
 import type { Category } from '@/types/category';
@@ -41,10 +41,25 @@ const formattedDate = computed(() => {
     // if purchase_date is "2023-10-10 12:00:00", we need to extract "2023-10-10"
     return props.asset.purchase_date.split('T')[0].split(' ')[0];
 });
+
+// Dynamic Specifications
+const specs = ref<Array<{ key: string; value: string }>>(
+    props.asset?.specification 
+        ? Object.entries(props.asset.specification).map(([k, v]) => ({ key: k, value: String(v) }))
+        : []
+);
+
+function addSpec() {
+    specs.value.push({ key: '', value: '' });
+}
+
+function removeSpec(index: number) {
+    specs.value.splice(index, 1);
+}
 </script>
 
 <template>
-    <DialogContent class="fixed top-1/2 sm:max-w-106.25">
+    <DialogContent class="fixed top-1/2 sm:max-w-106.25 overflow-y-auto max-h-[90vh]">
         <DialogHeader>
             <DialogTitle>{{
                 props.label || (isEdit ? 'Edit Asset' : 'Create Asset')
@@ -74,6 +89,21 @@ const formattedDate = computed(() => {
                         :class="{ 'border-destructive': errors.name }"
                     />
                     <InputError v-if="errors.name" :message="errors.name" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="thumbnail">Thumbnail Image (JPEG, PNG, JPG, GIF - Max 2MB)</Label>
+                    <div v-if="props.asset?.thumbnail" class="mb-2">
+                        <img :src="`/storage/${props.asset.thumbnail}`" class="h-20 w-20 object-cover rounded-md border" alt="Current Thumbnail" />
+                    </div>
+                    <Input
+                        id="thumbnail"
+                        type="file"
+                        name="thumbnail"
+                        accept="image/*"
+                        :class="{ 'border-destructive': errors.thumbnail }"
+                    />
+                    <InputError v-if="errors.thumbnail" :message="errors.thumbnail" />
                 </div>
 
                 <div class="grid gap-2">
@@ -144,6 +174,35 @@ const formattedDate = computed(() => {
                     />
                     <p class="text-[11px] text-on-surface-variant">Leave blank to keep existing attachment on edit.</p>
                     <InputError v-if="errors.attachment" :message="errors.attachment" />
+                </div>
+
+                <div class="grid gap-2">
+                    <div class="flex items-center justify-between">
+                        <Label>Specifications</Label>
+                        <Button type="button" variant="outline" size="sm" @click="addSpec">
+                            Add Spec
+                        </Button>
+                    </div>
+                    
+                    <div v-for="(spec, index) in specs" :key="index" class="flex gap-2 items-center">
+                        <Input
+                            v-model="spec.key"
+                            placeholder="Key (e.g. Merk)"
+                            class="w-1/2"
+                            required
+                        />
+                        <Input
+                            v-model="spec.value"
+                            :name="'specification[' + spec.key + ']'"
+                            placeholder="Value (e.g. Dell)"
+                            class="w-1/2"
+                            required
+                        />
+                        <Button type="button" variant="destructive" size="sm" @click="removeSpec(index)">
+                            Remove
+                        </Button>
+                    </div>
+                    <InputError v-if="errors.specification" :message="errors.specification" />
                 </div>
 
                 <Button

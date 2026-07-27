@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Asset;
 use App\Models\AssetAttachment;
 use App\Models\Category;
+use App\Models\DataJob;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class AssetController extends Controller
@@ -42,11 +44,22 @@ class AssetController extends Controller
             ->withQueryString();
 
         $categories = Category::select('id', 'name')->get();
-
+        $exportJob = DataJob::where('user_id', auth()->id())
+            ->where('type', 'assets')
+            ->where('direction', 'export')
+            ->latest()
+            ->first();
+        $ImportJob = DataJob::where('user_id', auth()->id())
+            ->where('type', 'assets')
+            ->where('direction', 'import')
+            ->latest()
+            ->first();
         return Inertia::render('assets/Index', [
             'assets' => $assets,
             'categories' => $categories,
             'filters' => request()->only(['search', 'is_active', 'category_id', 'sort']),
+            'exportJob' => $exportJob,
+            'importJob' => $ImportJob,
         ]);
     }
 
@@ -59,7 +72,13 @@ class AssetController extends Controller
             'specification' => 'nullable|array',
             'is_active' => 'required|boolean',
             'attachment' => 'nullable|file|mimes:pdf|min:100|max:500',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('thumbnail')) {
+            $file = $request->file('thumbnail');
+            $validatedData['thumbnail'] = $file->store('thumbnails', 'public');
+        }
 
         $asset = Asset::create($validatedData);
 
@@ -67,7 +86,7 @@ class AssetController extends Controller
             $file = $request->file('attachment');
             $path = $file->store('attachments', 'public');
 
-            \App\Models\AssetAttachment::create([
+            AssetAttachment::create([
                 'asset_id' => $asset->id,
                 'file_name' => $file->getClientOriginalName(),
                 'file_path' => $path,
@@ -90,9 +109,19 @@ class AssetController extends Controller
             'specification' => 'nullable|array',
             'is_active' => 'required|boolean',
             'attachment' => 'nullable|file|mimes:pdf|min:100|max:500',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $asset = Asset::findOrFail($id);
+
+        if ($request->hasFile('thumbnail')) {
+            $file = $request->file('thumbnail');
+            if ($asset->thumbnail) {
+                Storage::disk('public')->delete($asset->thumbnail);
+            }
+            $validatedData['thumbnail'] = $file->store('thumbnails', 'public');
+        }
+
         $asset->update($validatedData);
 
         if ($request->hasFile('attachment')) {
@@ -102,11 +131,11 @@ class AssetController extends Controller
             // Delete old attachment if exists
             $oldAttachment = AssetAttachment::where('asset_id', $asset->id)->first();
             if ($oldAttachment) {
-                // Optionally delete physical file: Storage::disk('public')->delete($oldAttachment->file_path);
+                Storage::disk('public')->delete($oldAttachment->file_path);
                 $oldAttachment->delete();
             }
 
-            \App\Models\AssetAttachment::create([
+            AssetAttachment::create([
                 'asset_id' => $asset->id,
                 'file_name' => $file->getClientOriginalName(),
                 'file_path' => $path,
@@ -121,6 +150,9 @@ class AssetController extends Controller
     public function destroy(string $id)
     {
         $asset = Asset::findOrFail($id);
+        if ($asset->thumbnail) {
+            Storage::disk('public')->delete($asset->thumbnail);
+        }
         $asset->delete();
 
         return redirect()->back()->with('success', 'Asset deleted successfully.');

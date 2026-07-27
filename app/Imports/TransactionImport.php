@@ -5,20 +5,22 @@ namespace App\Imports;
 use App\Exports\TransactionExport;
 use App\Models\Asset;
 use App\Models\AssetTransaction;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Illuminate\Support\Str;
 
-
-class TransactionImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class TransactionImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use Importable, SkipsFailures;
 
     public int $successCount = 0;
+
     private function getFieldMap(): array
     {
         $map = [];
@@ -28,6 +30,7 @@ class TransactionImport implements ToModel, WithHeadingRow, WithValidation, Skip
 
         return $map;
     }
+
     public function model(array $row)
     {
         $map = $this->getFieldMap();
@@ -37,11 +40,11 @@ class TransactionImport implements ToModel, WithHeadingRow, WithValidation, Skip
             if (isset($map[$header])) {
                 $dbField = $map[$header];
                 if ($dbField === 'borrowed_at' || $dbField === 'returned_at') {
-                    $mappedData[$dbField] = $value ? \Carbon\Carbon::parse($value) : null;
+                    $mappedData[$dbField] = $value ? Carbon::parse($value) : null;
                 } elseif ($dbField === 'user') {
-                    $mappedData['user_id'] = $value ? \App\Models\User::where('name', $value)->first()?->id : null;
+                    $mappedData['user_id'] = $value ? User::where('name', $value)->first()?->id : null;
                 } elseif ($dbField === 'asset') {
-                    $mappedData['asset_id'] = $value ? \App\Models\Asset::where('name', $value)->first()?->id : null;
+                    $mappedData['asset_id'] = $value ? Asset::where('name', $value)->first()?->id : null;
                 } elseif ($dbField === 'is_returned') {
                     $mappedData[$dbField] = filter_var($value ?? false, FILTER_VALIDATE_BOOLEAN);
                 } elseif ($dbField === 'notes') {
@@ -52,6 +55,7 @@ class TransactionImport implements ToModel, WithHeadingRow, WithValidation, Skip
             }
         }
         $this->successCount++;
+
         return new AssetTransaction($mappedData);
     }
 

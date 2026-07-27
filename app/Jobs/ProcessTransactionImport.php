@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Imports\TransactionImport;
 use App\Models\DataJob;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -9,11 +10,10 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\TransactionImport;
 
 class ProcessTransactionImport implements ShouldQueue
 {
-    use Queueable, Dispatchable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
@@ -34,27 +34,27 @@ class ProcessTransactionImport implements ShouldQueue
         $dataJob->update(['status' => 'processing']);
 
         try {
-            $import = new TransactionImport();
+            $import = new TransactionImport;
             Excel::import($import, $this->filePath);
 
             $failures = $import->failures();
 
             $dataJob->update([
-                'status'  => 'completed',
+                'status' => 'completed',
                 'summary' => [
                     'total_rows' => $import->successCount + $failures->count(),
-                    'success'    => $import->successCount,
-                    'failed'     => $failures->count(),
-                    'errors'     => $failures->map(fn($f) => [
-                        'row'       => $f->row(),
+                    'success' => $import->successCount,
+                    'failed' => $failures->count(),
+                    'errors' => $failures->map(fn ($f) => [
+                        'row' => $f->row(),
                         'attribute' => $f->attribute(),
-                        'errors'    => $f->errors(),
+                        'errors' => $f->errors(),
                     ])->values()->toArray(),
                 ],
             ]);
         } catch (\Throwable $e) {
             $dataJob->update([
-                'status'        => 'failed',
+                'status' => 'failed',
                 'error_message' => $e->getMessage(),
             ]);
         }

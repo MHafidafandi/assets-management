@@ -26,17 +26,17 @@ class ProcessCategoryExport implements ShouldQueue
         $exportJob->update(['status' => 'processing']);
 
         try {
-            $fileName = 'exports/categories_' . now()->format('Ymd_His') . '_' . $exportJob->uuid . '.xlsx';
+            $fileName = 'exports/categories_'.now()->format('Ymd_His').'_'.$exportJob->uuid.'.xlsx';
 
             Excel::store(new CategoriesExport($this->fields), $fileName, 'public');
 
             $exportJob->update([
-                'status'    => 'completed',
+                'status' => 'completed',
                 'file_path' => $fileName,
             ]);
         } catch (\Throwable $e) {
             $exportJob->update([
-                'status'        => 'failed',
+                'status' => 'failed',
                 'error_message' => $e->getMessage(),
             ]);
         }

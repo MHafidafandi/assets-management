@@ -4,16 +4,16 @@ namespace App\Exports;
 
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class UsersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
+class UsersExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping
 {
     public const AVAILABLE_FIELDS = [
-        'name'      => 'Nama',
-        'email'     => 'Email',
-        'role'      => 'Role',
+        'name' => 'Nama',
+        'email' => 'Email',
+        'role' => 'Role',
         'is_active' => 'Status',
         'created_at' => 'Dibuat Pada',
     ];
@@ -32,19 +32,19 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
 
     public function headings(): array
     {
-        return array_map(fn($key) => self::AVAILABLE_FIELDS[$key], $this->fields);
+        return array_map(fn ($key) => self::AVAILABLE_FIELDS[$key], $this->fields);
     }
 
     public function map($user): array
     {
         return array_map(function ($field) use ($user) {
             return match ($field) {
-                'name'       => $user->name,
-                'email'      => $user->email,
-                'role'       => $user->role->name,
-                'is_active'  => $user->is_active ? 'Aktif' : 'Nonaktif',
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role->name,
+                'is_active' => $user->is_active ? 'Aktif' : 'Nonaktif',
                 'created_at' => $user->created_at?->format('Y-m-d H:i'),
-                default      => '',
+                default => '',
             };
         }, $this->fields);
     }

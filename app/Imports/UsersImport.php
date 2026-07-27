@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Exports\UsersExport;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -12,7 +13,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class UsersImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use Importable, SkipsFailures;
 
@@ -21,9 +22,10 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFai
     private function getFieldMap(): array
     {
         $map = [];
-        foreach (\App\Exports\UsersExport::AVAILABLE_FIELDS as $dbField => $label) {
+        foreach (UsersExport::AVAILABLE_FIELDS as $dbField => $label) {
             $map[Str::slug($label, '_')] = $dbField;
         }
+
         return $map;
     }
 
@@ -55,7 +57,7 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFai
     public function rules(): array
     {
         $map = $this->getFieldMap();
-        
+
         $nameHeader = array_search('name', $map);
         $emailHeader = array_search('email', $map);
         $roleHeader = array_search('role', $map);

@@ -26,27 +26,27 @@ class ProcessCategoryImport implements ShouldQueue
         $dataJob->update(['status' => 'processing']);
 
         try {
-            $import = new CategoriesImport();
+            $import = new CategoriesImport;
             Excel::import($import, $this->filePath);
 
             $failures = $import->failures();
 
             $dataJob->update([
-                'status'  => 'completed',
+                'status' => 'completed',
                 'summary' => [
                     'total_rows' => $import->successCount + $failures->count(),
-                    'success'    => $import->successCount,
-                    'failed'     => $failures->count(),
-                    'errors'     => $failures->map(fn($f) => [
-                        'row'       => $f->row(),
+                    'success' => $import->successCount,
+                    'failed' => $failures->count(),
+                    'errors' => $failures->map(fn ($f) => [
+                        'row' => $f->row(),
                         'attribute' => $f->attribute(),
-                        'errors'    => $f->errors(),
+                        'errors' => $f->errors(),
                     ])->values()->toArray(),
                 ],
             ]);
         } catch (\Throwable $e) {
             $dataJob->update([
-                'status'        => 'failed',
+                'status' => 'failed',
                 'error_message' => $e->getMessage(),
             ]);
         }

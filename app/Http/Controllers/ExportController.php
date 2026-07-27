@@ -14,20 +14,19 @@ use App\Models\DataJob;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
-
 class ExportController extends Controller
 {
     public function storeAssets(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'fields'   => ['nullable', 'array'],
-            'fields.*' => ['in:' . implode(',', array_keys(AssetsExport::AVAILABLE_FIELDS))],
+            'fields' => ['nullable', 'array'],
+            'fields.*' => ['in:'.implode(',', array_keys(AssetsExport::AVAILABLE_FIELDS))],
         ]);
 
         $exportJob = DataJob::create([
             'user_id' => auth()->id(),
-            'type'    => 'assets',
-            'status'  => 'queued',
+            'type' => 'assets',
+            'status' => 'queued',
         ]);
 
         ProcessAssetExport::dispatch($exportJob->id, $validated['fields'] ?? []);
@@ -39,14 +38,14 @@ class ExportController extends Controller
     {
 
         $validated = $request->validate([
-            'fields'   => ['nullable', 'array'],
-            'fields.*' => ['in:' . implode(',', array_keys(UsersExport::AVAILABLE_FIELDS))],
+            'fields' => ['nullable', 'array'],
+            'fields.*' => ['in:'.implode(',', array_keys(UsersExport::AVAILABLE_FIELDS))],
         ]);
 
         $exportJob = DataJob::create([
             'user_id' => auth()->id(),
-            'type'    => 'users',
-            'status'  => 'queued',
+            'type' => 'users',
+            'status' => 'queued',
         ]);
 
         ProcessUserExport::dispatch($exportJob->id, $validated['fields'] ?? []);
@@ -57,14 +56,14 @@ class ExportController extends Controller
     public function storeCategories(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'fields'   => ['nullable', 'array'],
-            'fields.*' => ['in:' . implode(',', array_keys(CategoriesExport::AVAILABLE_FIELDS))],
+            'fields' => ['nullable', 'array'],
+            'fields.*' => ['in:'.implode(',', array_keys(CategoriesExport::AVAILABLE_FIELDS))],
         ]);
 
         $exportJob = DataJob::create([
             'user_id' => auth()->id(),
-            'type'    => 'categories',
-            'status'  => 'queued',
+            'type' => 'categories',
+            'status' => 'queued',
         ]);
 
         ProcessCategoryExport::dispatch($exportJob->id, $validated['fields'] ?? []);
@@ -75,14 +74,14 @@ class ExportController extends Controller
     public function storeTransactions(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'fields'   => ['nullable', 'array'],
-            'fields.*' => ['in:' . implode(',', array_keys(TransactionExport::AVAILABLE_FIELDS))],
+            'fields' => ['nullable', 'array'],
+            'fields.*' => ['in:'.implode(',', array_keys(TransactionExport::AVAILABLE_FIELDS))],
         ]);
 
         $exportJob = DataJob::create([
             'user_id' => auth()->id(),
-            'type'    => 'transactions',
-            'status'  => 'queued',
+            'type' => 'transactions',
+            'status' => 'queued',
         ]);
 
         ProcessExportTransaction::dispatch($exportJob->id, $validated['fields'] ?? []);

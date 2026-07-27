@@ -28,20 +28,19 @@ class ProcessExportTransaction implements ShouldQueue
         $exportJob = DataJob::findOrFail($this->exportJobId);
         $exportJob->update(['status' => 'processing']);
 
-
         try {
-            $fileName = 'transaction_export_' . now()->format('Ymd_His') . '.xlsx';
+            $fileName = 'transaction_export_'.now()->format('Ymd_His').'.xlsx';
 
             Excel::store(new TransactionExport($this->fields), $fileName, 'public');
 
             $exportJob->update([
-                'status'    => 'completed',
+                'status' => 'completed',
                 'file_path' => $fileName,
             ]);
         } catch (\Throwable $e) {
             dd($e->getMessage());
             $exportJob->update([
-                'status'        => 'failed',
+                'status' => 'failed',
                 'error_message' => $e->getMessage(),
             ]);
         }

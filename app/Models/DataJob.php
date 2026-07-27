@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-
 #[Fillable(['user_id', 'type', 'direction', 'status', 'file_path', 'error_message', 'summary'])]
 class DataJob extends Model
 {
@@ -19,7 +18,6 @@ class DataJob extends Model
             }
         });
     }
-
 
     protected $casts = ['summary' => 'array'];
 }

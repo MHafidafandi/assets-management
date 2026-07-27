@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import {
     ChevronLeft,
     ChevronRight,
@@ -10,6 +10,7 @@ import {
     ArrowUpDown,
     ArrowUp,
     ArrowDown,
+    Eye,
 } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import { index as assetsIndex } from '@/actions/App/Http/Controllers/AssetController';
@@ -400,9 +401,12 @@ function goToPage(page: number) {
                                 </div>
                             </td>
                             <td class="px-lg py-md">
-                                <span class="text-body-md font-semibold">{{
-                                    asset.name
-                                }}</span>
+                                <Link
+                                    :href="`/assets/${asset.id}`"
+                                    class="text-body-md font-semibold text-primary hover:underline"
+                                >
+                                    {{ asset.name }}
+                                </Link>
                             </td>
                             <td class="px-lg py-md">
                                 <span class="text-body-md">{{
@@ -471,6 +475,13 @@ function goToPage(page: number) {
                             </td>
                             <td class="px-lg py-md text-right">
                                 <div class="flex justify-end gap-xs">
+                                    <Link
+                                        :href="`/assets/${asset.id}`"
+                                        class="rounded p-xs text-on-surface-variant transition-colors hover:bg-surface-container-high"
+                                        title="View Details"
+                                    >
+                                        <Eye class="size-5" />
+                                    </Link>
                                     <Dialog
                                         v-model:open="
                                             editDialogOpenMap[asset.id]

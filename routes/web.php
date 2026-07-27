@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetTransactionController;
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
@@ -16,6 +17,7 @@ Route::inertia('/login', 'auth/Login')->name('login');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/audits', [AuditController::class, 'index'])->name('audits.index');
     Route::resource('roles', RoleController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::middleware(['role:Administrator'])->group(function () {

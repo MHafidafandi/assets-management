@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Exports\CategoriesExport;
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -11,7 +12,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
-class CategoriesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class CategoriesImport implements SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use Importable, SkipsFailures;
 
@@ -20,9 +21,10 @@ class CategoriesImport implements ToModel, WithHeadingRow, WithValidation, Skips
     private function getFieldMap(): array
     {
         $map = [];
-        foreach (\App\Exports\CategoriesExport::AVAILABLE_FIELDS as $dbField => $label) {
+        foreach (CategoriesExport::AVAILABLE_FIELDS as $dbField => $label) {
             $map[Str::slug($label, '_')] = $dbField;
         }
+
         return $map;
     }
 
@@ -50,7 +52,7 @@ class CategoriesImport implements ToModel, WithHeadingRow, WithValidation, Skips
     public function rules(): array
     {
         $map = $this->getFieldMap();
-        
+
         $nameHeader = array_search('name', $map);
 
         return [

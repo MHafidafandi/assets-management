@@ -38,7 +38,7 @@ class AssetTransactionController extends Controller
                         $q->orderBy('created_at', 'desc');
                     }
                 },
-                fn($q) => $q->orderBy('created_at', 'desc')
+                fn ($q) => $q->orderBy('created_at', 'desc')
             )
             ->paginate(10)
             ->withQueryString();
@@ -55,6 +55,7 @@ class AssetTransactionController extends Controller
             ->where('direction', 'import')
             ->latest()
             ->first();
+
         return Inertia::render('transactions/Index', [
             'transactions' => $transactions,
             'assets' => $assets,

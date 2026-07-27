@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class TransactionExport implements WithHeadings, ShouldAutoSize, WithMapping, FromQuery
+class TransactionExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping
 {
     public const AVAILABLE_FIELDS = [
         'user' => 'User',
@@ -33,7 +33,7 @@ class TransactionExport implements WithHeadings, ShouldAutoSize, WithMapping, Fr
 
     public function headings(): array
     {
-        return array_map(fn($key) => self::AVAILABLE_FIELDS[$key], $this->fields);
+        return array_map(fn ($key) => self::AVAILABLE_FIELDS[$key], $this->fields);
     }
 
     public function map($transaction): array

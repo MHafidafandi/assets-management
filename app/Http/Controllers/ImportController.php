@@ -21,10 +21,10 @@ class ImportController extends Controller
         $path = $request->file('file')->store('imports');
 
         $dataJob = DataJob::create([
-            'user_id'   => auth()->id(),
-            'type'      => 'assets',
+            'user_id' => auth()->id(),
+            'type' => 'assets',
             'direction' => 'import',
-            'status'    => 'queued',
+            'status' => 'queued',
         ]);
 
         ProcessAssetImport::dispatch($dataJob->id, $path);
@@ -41,10 +41,10 @@ class ImportController extends Controller
         $path = $request->file('file')->store('imports');
 
         $dataJob = DataJob::create([
-            'user_id'   => auth()->id(),
-            'type'      => 'users',
+            'user_id' => auth()->id(),
+            'type' => 'users',
             'direction' => 'import',
-            'status'    => 'queued',
+            'status' => 'queued',
         ]);
 
         ProcessUserImport::dispatch($dataJob->id, $path);
@@ -61,10 +61,10 @@ class ImportController extends Controller
         $path = $request->file('file')->store('imports');
 
         $dataJob = DataJob::create([
-            'user_id'   => auth()->id(),
-            'type'      => 'categories',
+            'user_id' => auth()->id(),
+            'type' => 'categories',
             'direction' => 'import',
-            'status'    => 'queued',
+            'status' => 'queued',
         ]);
 
         ProcessCategoryImport::dispatch($dataJob->id, $path);
@@ -81,10 +81,10 @@ class ImportController extends Controller
         $path = $request->file('file')->store('imports');
 
         $dataJob = DataJob::create([
-            'user_id'   => auth()->id(),
-            'type'      => 'transactions',
+            'user_id' => auth()->id(),
+            'type' => 'transactions',
             'direction' => 'import',
-            'status'    => 'queued',
+            'status' => 'queued',
         ]);
 
         ProcessTransactionImport::dispatch($dataJob->id, $path);

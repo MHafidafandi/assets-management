@@ -38,7 +38,7 @@ class AssetController extends Controller
                         $q->orderBy('created_at', 'desc');
                     }
                 },
-                fn($q) => $q->orderBy('created_at', 'desc')
+                fn ($q) => $q->orderBy('created_at', 'desc')
             )
             ->paginate(10)
             ->withQueryString();
@@ -54,6 +54,7 @@ class AssetController extends Controller
             ->where('direction', 'import')
             ->latest()
             ->first();
+
         return Inertia::render('assets/Index', [
             'assets' => $assets,
             'categories' => $categories,
@@ -98,7 +99,16 @@ class AssetController extends Controller
         return redirect()->back()->with('success', 'Asset created successfully.');
     }
 
-    public function show(string $id) {}
+    public function show(string $id)
+    {
+        $asset = Asset::query()
+            ->with(['category:id,name', 'attachment', 'transactions.user:id,name,email'])
+            ->findOrFail($id);
+
+        return Inertia::render('assets/Show', [
+            'asset' => $asset,
+        ]);
+    }
 
     public function update(Request $request, string $id)
     {
